@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz ÑĞĮĻJÃ_ÑĪJ</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      max-width: 500px;
+      margin: auto;
+    }
+    h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+      color: #FFD700;
+    }
+    textarea {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: none;
+      resize: none;
+    }
+    button {
+      background: #FFD700;
+      color: #222;
+      font-weight: bold;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #ffcc00;
+    }
+    .hidden {
+      display: none;
+    }
+    .question {
+      margin: 20px 0;
+      font-size: 20px;
+    }
+    .option {
+      display: block;
+      background: rgba(255,255,255,0.2);
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .option:hover {
+      background: rgba(255,255,255,0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="welcome" class="card">
+    <h1>ÑĞĮĻJÃ_ÑĪJ vous remercie 💖</h1>
+    <p>Laissez un message pour l’encourager :</p>
+    <textarea id="message" rows="3" placeholder="Écris ton message ici..."></textarea><br>
+    <button onclick="startQuiz()">Commencer le Quiz</button>
+  </div>
+
+  <div id="quiz" class="card hidden">
+    <h2 id="questionTitle"></h2>
+    <div id="options"></div>
+    <button onclick="nextQuestion()">Question Suivante</button>
+  </div>
+
+  <div id="end" class="card hidden">
+    <h2>🎉 Merci d’avoir joué !</h2>
+    <p id="endMessage"></p>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "Quelle est ta couleur préférée ?",
+        options: ["Rouge 🔴", "Bleu 🔵", "Vert 🟢", "Noir ⚫"]
+      },
+      {
+        question: "Quel est ton plat préféré ?",
+        options: ["Pizza 🍕", "Poulet 🍗", "Frites 🍟", "Riz 🍚"]
+      },
+      {
+        question: "Quelle saison préfères-tu ?",
+        options: ["Été ☀️", "Hiver ❄️", "Automne 🍂", "Printemps 🌸"]
+      },
+      {
+        question: "Quel animal te représente le mieux ?",
+        options: ["Lion 🦁", "Aigle 🦅", "Chat 🐱", "Chien 🐶"]
+      }
+    ];
+
+    let currentQuestion = 0;
+    let playerAnswers = [];
+
+    function startQuiz() {
+      document.getElementById("welcome").classList.add("hidden");
+      document.getElementById("quiz").classList.remove("hidden");
+      showQuestion();
+    }
+
+    function showQuestion() {
+      let q = questions[currentQuestion];
+      document.getElementById("questionTitle").textContent = q.question;
+      let optionsHTML = "";
+      q.options.forEach(opt => {
+        optionsHTML += `<div class="option" onclick="selectOption('${opt}')">${opt}</div>`;
+      });
+      document.getElementById("options").innerHTML = optionsHTML;
+    }
+
+    function selectOption(option) {
+      playerAnswers.push({question: questions[currentQuestion].question, answer: option});
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        showQuestion();
+      } else {
+        endQuiz();
+      }
+    }
+
+    function endQuiz() {
+      document.getElementById("quiz").classList.add("hidden");
+      document.getElementById("end").classList.remove("hidden");
+
+      let message = document.getElementById("message").value;
+      let resultText = "Ton message : " + (message ? message : "Aucun 😅") + "<br><br>";
+      resultText += "Voici tes réponses :<br>";
+      playerAnswers.forEach(ans => {
+        resultText += `👉 <b>${ans.question}</b> : ${ans.answer}<br>`;
+      });
+
+      document.getElementById("endMessage").innerHTML = resultText;
+    }
+  </script>
+
+</body>
+</html>
