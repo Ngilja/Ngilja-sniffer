@@ -2,156 +2,255 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiz ÑĞĮĻJÃ_ÑĪJ</title>
+  <title>😇 Vrai ou Faux ? ❌</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
-      color: white;
-      text-align: center;
-      padding: 20px;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #fff;
+      background: linear-gradient(270deg, #ff416c, #ff4b2b, #1e3c72, #2a5298);
+      background-size: 800% 800%;
+      animation: gradientBG 12s ease infinite;
     }
-    .card {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
-      max-width: 500px;
-      margin: auto;
+
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
     }
-    h1 {
-      font-size: 28px;
-      margin-bottom: 10px;
-      color: #FFD700;
-    }
-    textarea {
+
+    .container {
       width: 90%;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 10px;
-      border: none;
-      resize: none;
-    }
-    button {
-      background: #FFD700;
-      color: #222;
-      font-weight: bold;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 10px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    button:hover {
-      background: #ffcc00;
-    }
-    .hidden {
+      max-width: 500px;
+      background: rgba(0,0,0,0.6);
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      text-align: center;
       display: none;
+      animation: fadeIn 1s ease-in-out;
     }
-    .question {
-      margin: 20px 0;
+
+    .intro {
       font-size: 20px;
+      font-weight: bold;
+      animation: pulse 1.5s infinite;
     }
-    .option {
-      display: block;
-      background: rgba(255,255,255,0.2);
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 8px;
+
+    @keyframes pulse {
+      0% { transform: scale(1); color: #fff; }
+      50% { transform: scale(1.1); color: #ffea00; }
+      100% { transform: scale(1); color: #fff; }
+    }
+
+    .progress {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      margin: 15px 0;
+      flex-wrap: wrap;
+    }
+
+    .dot {
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      background: #777;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: white;
+    }
+    .dot.active { background: #28a745; }
+
+    .question {
+      font-size: 20px;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+
+    .btn {
+      display: inline-block;
+      width: 40%;
+      padding: 12px;
+      margin: 10px;
+      border-radius: 12px;
+      font-size: 18px;
       cursor: pointer;
+      transition: 0.3s;
+      border: none;
     }
-    .option:hover {
-      background: rgba(255,255,255,0.4);
+    .true { background: #28a745; color: white; }
+    .false { background: #dc3545; color: white; }
+    .btn:hover { opacity: 0.85; }
+
+    .hidden { display: none; }
+
+    .result { font-size: 22px; margin: 20px 0; }
+    .share {
+      background: #25d366;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
 
-  <div id="welcome" class="card">
-    <h1>ÑĞĮĻJÃ_ÑĪJ vous remercie 💖</h1>
-    <p>Laissez un message pour l’encourager :</p>
-    <textarea id="message" rows="3" placeholder="Écris ton message ici..."></textarea><br>
-    <button onclick="startQuiz()">Commencer le Quiz</button>
-  </div>
+<!-- Sons -->
+<audio id="clickSound" src="https://www.myinstants.com/media/sounds/click.mp3"></audio>
 
-  <div id="quiz" class="card hidden">
-    <h2 id="questionTitle"></h2>
-    <div id="options"></div>
-    <button onclick="nextQuestion()">Question Suivante</button>
-  </div>
+<div id="intro" class="container" style="display:block;">
+  <div class="intro">ÑĞĮĻJÃ_ÑĪJ VOUS REMERCIE POUR VOTRE ENCOURAGEMENT ✅️🆖️🥷🏼✨️</div>
+  <p>Laissez un petit message d’encouragement 💬</p>
+  <button class="btn true" onclick="startCreator()">Créer mon quiz</button>
+  <button class="btn false" onclick="startQuiz()">Jouer</button>
+</div>
 
-  <div id="end" class="card hidden">
-    <h2>🎉 Merci d’avoir joué !</h2>
-    <p id="endMessage"></p>
-  </div>
+<div id="creator" class="container">
+  <h2>Créer ton quiz 😍</h2>
+  <input type="text" id="creatorName" placeholder="Ton prénom" style="padding:10px;border-radius:8px;width:80%;">
+  <p>Choisis tes réponses (Vrai/Faux)</p>
+  <div id="creatorQuestions"></div>
+  <button class="btn true" onclick="generateLink()">Partager mon quiz</button>
+</div>
 
-  <script>
-    const questions = [
-      {
-        question: "Quelle est ta couleur préférée ?",
-        options: ["Rouge 🔴", "Bleu 🔵", "Vert 🟢", "Noir ⚫"]
-      },
-      {
-        question: "Quel est ton plat préféré ?",
-        options: ["Pizza 🍕", "Poulet 🍗", "Frites 🍟", "Riz 🍚"]
-      },
-      {
-        question: "Quelle saison préfères-tu ?",
-        options: ["Été ☀️", "Hiver ❄️", "Automne 🍂", "Printemps 🌸"]
-      },
-      {
-        question: "Quel animal te représente le mieux ?",
-        options: ["Lion 🦁", "Aigle 🦅", "Chat 🐱", "Chien 🐶"]
-      }
-    ];
+<div id="quiz" class="container">
+  <h2>😇 Vrai ou Faux ? ❌</h2>
+  <div class="progress" id="progress"></div>
+  <div class="question" id="question"></div>
+  <button class="btn true" onclick="answer(true)">✅ Vrai</button>
+  <button class="btn false" onclick="answer(false)">❌ Faux</button>
+</div>
 
-    let currentQuestion = 0;
-    let playerAnswers = [];
+<div id="result" class="container">
+  <div class="result" id="score"></div>
+  <a class="share" id="shareBtn" target="_blank">Partager sur WhatsApp</a>
+  <br><br>
+  <button class="btn true" onclick="restart()">Créer ton propre quiz</button>
+</div>
 
-    function startQuiz() {
-      document.getElementById("welcome").classList.add("hidden");
-      document.getElementById("quiz").classList.remove("hidden");
-      showQuestion();
+<script>
+  const questions = [
+    "croit aux fantômes ?",
+    "a déjà eu le béguin pour un prof ?",
+    "a peur du noir ?",
+    "aime les films d’horreur ?",
+    "a déjà triché à un examen ?",
+    "aime les animaux ?",
+    "croit au coup de foudre ?",
+    "préfère le chat ?",
+    "chante sous la douche ?",
+    "a déjà pleuré devant un film ?"
+  ];
+
+  let creatorAnswers = [];
+  let playerAnswers = [];
+  let currentQuestion = 0;
+  let playerName = "";
+  let creatorMode = false;
+
+  const clickSound = document.getElementById("clickSound");
+
+  function playSound() {
+    clickSound.currentTime = 0;
+    clickSound.play();
+  }
+
+  function startCreator() {
+    playSound();
+    document.getElementById("intro").style.display = "none";
+    document.getElementById("creator").style.display = "block";
+    const cq = document.getElementById("creatorQuestions");
+    cq.innerHTML = "";
+    questions.forEach((q,i)=>{
+      cq.innerHTML += `
+        <p>${i+1}. Je ${q}</p>
+        <button class="btn true" onclick="setAnswer(${i},true)">✅ Vrai</button>
+        <button class="btn false" onclick="setAnswer(${i},false)">❌ Faux</button>
+      `;
+    });
+    creatorMode = true;
+  }
+
+  function setAnswer(i, val) {
+    playSound();
+    creatorAnswers[i] = val;
+  }
+
+  function generateLink() {
+    playSound();
+    const name = document.getElementById("creatorName").value || "Moi";
+    const data = btoa(JSON.stringify(creatorAnswers));
+    const link = `${window.location.origin}${window.location.pathname}?nom=${encodeURIComponent(name)}&quiz=${data}`;
+    alert("Lien prêt : " + link);
+    window.open("https://wa.me/?text=" + encodeURIComponent("😇 Vrai ou Faux ? ❌\nDécouvre si tu connais " + name + " 👉 " + link), "_blank");
+  }
+
+  function startQuiz() {
+    playSound();
+    const params = new URLSearchParams(window.location.search);
+    playerName = params.get("nom") || "Ton ami";
+    const data = params.get("quiz");
+    if(data){
+      creatorAnswers = JSON.parse(atob(data));
     }
+    document.getElementById("intro").style.display = "none";
+    document.getElementById("quiz").style.display = "block";
+    loadQuestion();
+  }
 
-    function showQuestion() {
-      let q = questions[currentQuestion];
-      document.getElementById("questionTitle").textContent = q.question;
-      let optionsHTML = "";
-      q.options.forEach(opt => {
-        optionsHTML += `<div class="option" onclick="selectOption('${opt}')">${opt}</div>`;
-      });
-      document.getElementById("options").innerHTML = optionsHTML;
+  function loadQuestion() {
+    if(currentQuestion >= questions.length) {
+      showResult();
+      return;
     }
-
-    function selectOption(option) {
-      playerAnswers.push({question: questions[currentQuestion].question, answer: option});
+    document.getElementById("question").innerText = `Est-ce que ${playerName} ${questions[currentQuestion]}`;
+    const progress = document.getElementById("progress");
+    progress.innerHTML = "";
+    for(let i=0;i<questions.length;i++){
+      progress.innerHTML += `<div class="dot ${i===currentQuestion?"active":""}">${i+1}</div>`;
     }
+  }
 
-    function nextQuestion() {
-      if (currentQuestion < questions.length - 1) {
-        currentQuestion++;
-        showQuestion();
-      } else {
-        endQuiz();
-      }
+  function answer(val) {
+    playSound();
+    playerAnswers.push(val);
+    currentQuestion++;
+    loadQuestion();
+  }
+
+  function showResult() {
+    playSound();
+    document.getElementById("quiz").style.display = "none";
+    document.getElementById("result").style.display = "block";
+    let score = 0;
+    for(let i=0;i<questions.length;i++){
+      if(playerAnswers[i] === creatorAnswers[i]) score++;
     }
+    document.getElementById("score").innerText = `🔥 Tu connais ${playerName} à ${score}/${questions.length} !`;
+    document.getElementById("shareBtn").href = "https://wa.me/?text=" + encodeURIComponent("🔥 J’ai eu " + score + "/" + questions.length + " en connaissant " + playerName + " ! Essaye aussi 👉 " + window.location.href);
+  }
 
-    function endQuiz() {
-      document.getElementById("quiz").classList.add("hidden");
-      document.getElementById("end").classList.remove("hidden");
-
-      let message = document.getElementById("message").value;
-      let resultText = "Ton message : " + (message ? message : "Aucun 😅") + "<br><br>";
-      resultText += "Voici tes réponses :<br>";
-      playerAnswers.forEach(ans => {
-        resultText += `👉 <b>${ans.question}</b> : ${ans.answer}<br>`;
-      });
-
-      document.getElementById("endMessage").innerHTML = resultText;
-    }
-  </script>
+  function restart() {
+    playSound();
+    window.location.href = window.location.origin + window.location.pathname;
+  }
+</script>
 
 </body>
 </html>
