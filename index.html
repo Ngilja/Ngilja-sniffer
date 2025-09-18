@@ -13,71 +13,64 @@
       align-items: center;
       min-height: 100vh;
       color: #fff;
-      background: linear-gradient(270deg, #ff416c, #ff4b2b, #1e3c72, #2a5298);
+      background: linear-gradient(270deg, #ff6ec7, #845ec2, #2c73d2, #0081cf);
       background-size: 800% 800%;
-      animation: gradientBG 12s ease infinite;
+      animation: gradientBG 15s ease infinite;
     }
-
     @keyframes gradientBG {
       0% {background-position: 0% 50%;}
       50% {background-position: 100% 50%;}
       100% {background-position: 0% 50%;}
     }
-
     .container {
-      width: 90%;
-      max-width: 500px;
-      background: rgba(0,0,0,0.6);
-      padding: 20px;
+      width: 95%;
+      max-width: 550px;
+      background: rgba(0,0,0,0.65);
+      padding: 25px;
       border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
       text-align: center;
       display: none;
       animation: fadeIn 1s ease-in-out;
     }
-
     .intro {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: bold;
       animation: pulse 1.5s infinite;
     }
-
     @keyframes pulse {
       0% { transform: scale(1); color: #fff; }
       50% { transform: scale(1.1); color: #ffea00; }
       100% { transform: scale(1); color: #fff; }
     }
-
     .progress {
       display: flex;
       justify-content: center;
-      gap: 5px;
+      gap: 6px;
       margin: 15px 0;
       flex-wrap: wrap;
     }
-
     .dot {
-      width: 25px;
-      height: 25px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
-      background: #777;
+      background: #555;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 14px;
       color: white;
+      transition: 0.3s;
     }
-    .dot.active { background: #28a745; }
-
+    .dot.active { background: #00ff9d; box-shadow: 0 0 8px #00ff9d; }
     .question {
       font-size: 20px;
       margin: 20px 0;
       font-weight: bold;
     }
-
     .btn {
       display: inline-block;
-      width: 40%;
+      width: 42%;
       padding: 12px;
       margin: 10px;
       border-radius: 12px;
@@ -85,13 +78,11 @@
       cursor: pointer;
       transition: 0.3s;
       border: none;
+      font-weight: bold;
     }
-    .true { background: #28a745; color: white; }
-    .false { background: #dc3545; color: white; }
-    .btn:hover { opacity: 0.85; }
-
-    .hidden { display: none; }
-
+    .true { background: #00c853; color: white; box-shadow: 0 0 12px #00c853; }
+    .false { background: #d50000; color: white; box-shadow: 0 0 12px #d50000; }
+    .btn:hover { transform: scale(1.05); }
     .result { font-size: 22px; margin: 20px 0; }
     .share {
       background: #25d366;
@@ -101,8 +92,26 @@
       cursor: pointer;
       text-decoration: none;
       display: inline-block;
+      box-shadow: 0 0 10px #25d366;
+      transition: 0.3s;
     }
-
+    .share:hover { transform: scale(1.05); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      color: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 10px;
+    }
+    th {
+      background: rgba(255,255,255,0.2);
+    }
+    tr:nth-child(even) { background: rgba(255,255,255,0.08); }
+    tr:hover { background: rgba(255,255,255,0.2); }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
@@ -110,9 +119,6 @@
   </style>
 </head>
 <body>
-
-<!-- Sons -->
-<audio id="clickSound" src="https://www.myinstants.com/media/sounds/click.mp3"></audio>
 
 <div id="intro" class="container" style="display:block;">
   <div class="intro">ÑĞĮĻJÃ_ÑĪJ VOUS REMERCIE POUR VOTRE ENCOURAGEMENT ✅️🆖️🥷🏼✨️</div>
@@ -133,8 +139,8 @@
   <h2>😇 Vrai ou Faux ? ❌</h2>
   <div class="progress" id="progress"></div>
   <div class="question" id="question"></div>
-  <button class="btn true" onclick="answer(true)">✅ Vrai</button>
-  <button class="btn false" onclick="answer(false)">❌ Faux</button>
+  <button class="btn true" id="btnTrue">✅ Vrai</button>
+  <button class="btn false" id="btnFalse">❌ Faux</button>
 </div>
 
 <div id="result" class="container">
@@ -142,6 +148,10 @@
   <a class="share" id="shareBtn" target="_blank">Partager sur WhatsApp</a>
   <br><br>
   <button class="btn true" onclick="restart()">Créer ton propre quiz</button>
+  <h3>📊 Classement des joueurs</h3>
+  <table id="scoreTable">
+    <tr><th>Joueur</th><th>Score</th></tr>
+  </table>
 </div>
 
 <script>
@@ -162,17 +172,29 @@
   let playerAnswers = [];
   let currentQuestion = 0;
   let playerName = "";
-  let creatorMode = false;
+  let players = []; // Tableau des scores
 
-  const clickSound = document.getElementById("clickSound");
-
-  function playSound() {
-    clickSound.currentTime = 0;
-    clickSound.play();
+  function playClick(){
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "square"; osc.frequency.value = 400;
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(); gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.15);
+    osc.stop(ctx.currentTime + 0.15);
+  }
+  function playWin(){
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "triangle"; osc.frequency.value = 600;
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(); gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1);
+    osc.stop(ctx.currentTime + 1);
   }
 
   function startCreator() {
-    playSound();
+    playClick();
     document.getElementById("intro").style.display = "none";
     document.getElementById("creator").style.display = "block";
     const cq = document.getElementById("creatorQuestions");
@@ -184,17 +206,16 @@
         <button class="btn false" onclick="setAnswer(${i},false)">❌ Faux</button>
       `;
     });
-    creatorMode = true;
   }
 
   function setAnswer(i, val) {
-    playSound();
+    playClick();
     creatorAnswers[i] = val;
   }
 
   function generateLink() {
-    playSound();
-    const name = document.getElementById("creatorName").value || "Moi";
+    playClick();
+    const name = document.getElementById("creatorName").value || "Ngilja";
     const data = btoa(JSON.stringify(creatorAnswers));
     const link = `${window.location.origin}${window.location.pathname}?nom=${encodeURIComponent(name)}&quiz=${data}`;
     alert("Lien prêt : " + link);
@@ -202,9 +223,9 @@
   }
 
   function startQuiz() {
-    playSound();
+    playClick();
     const params = new URLSearchParams(window.location.search);
-    playerName = params.get("nom") || "Ton ami";
+    playerName = params.get("nom") || "Ngilja";
     const data = params.get("quiz");
     if(data){
       creatorAnswers = JSON.parse(atob(data));
@@ -227,15 +248,15 @@
     }
   }
 
-  function answer(val) {
-    playSound();
+  function handleAnswer(val) {
+    playClick();
     playerAnswers.push(val);
     currentQuestion++;
     loadQuestion();
   }
 
   function showResult() {
-    playSound();
+    playWin();
     document.getElementById("quiz").style.display = "none";
     document.getElementById("result").style.display = "block";
     let score = 0;
@@ -244,12 +265,30 @@
     }
     document.getElementById("score").innerText = `🔥 Tu connais ${playerName} à ${score}/${questions.length} !`;
     document.getElementById("shareBtn").href = "https://wa.me/?text=" + encodeURIComponent("🔥 J’ai eu " + score + "/" + questions.length + " en connaissant " + playerName + " ! Essaye aussi 👉 " + window.location.href);
+
+    // Ajouter joueur et trier
+    players.push({name: playerName, score});
+    players.sort((a,b)=>b.score - a.score);
+
+    // Rafraîchir tableau
+    const table = document.getElementById("scoreTable");
+    table.innerHTML = "<tr><th>Joueur</th><th>Score</th></tr>";
+    players.forEach(p=>{
+      const row = table.insertRow(-1);
+      row.insertCell(0).innerText = p.name;
+      row.insertCell(1).innerText = `${p.score}/${questions.length}`;
+    });
   }
 
   function restart() {
-    playSound();
+    playClick();
     window.location.href = window.location.origin + window.location.pathname;
   }
+
+  document.addEventListener("DOMContentLoaded",()=>{
+    document.getElementById("btnTrue").addEventListener("click", ()=>handleAnswer(true));
+    document.getElementById("btnFalse").addEventListener("click", ()=>handleAnswer(false));
+  });
 </script>
 
 </body>
