@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Joyeux Anniversaire - [Votre Nom]</title>
+    <title>Joyeux Anniversaire - NGILJA NIJ</title>
     <style>
         /* --- Styles de Base (CSS) --- */
         :root {
@@ -144,7 +144,7 @@
 
     <div class="container">
         <h1>Bientôt le Grand Jour !</h1>
-        <h2>Anniversaire de **[Votre Nom]** le **[Date de Naissance]**</h2>
+        <h2>Anniversaire de **NGILJA NIJ** le **17 novembre**</h2>
 
         <div id="countdown-title">Temps restant avant le début de la célébration :</div>
 
@@ -172,13 +172,14 @@
 
     <script>
         // --- CONFIGURATION À MODIFIER ---
-        const YOUR_NAME = "Yobrunji"; // <<< Mettez votre nom ici
-        const BIRTHDAY_DATE = "November 17, 2025 00:00:00"; // <<< Mettez votre date et heure d'anniversaire (MM/JJ/AAAA HH:MM:SS)
+        const YOUR_NAME = "NGILJA NIJ"; 
+        // L'anniversaire est demain : 17 novembre 2025 à 00:00:00
+        const BIRTHDAY_DATE = "November 17, 2025 00:00:00"; 
+        // ---------------------------------
 
         document.querySelector('h2').innerHTML = `Anniversaire de **${YOUR_NAME}** le **${new Date(BIRTHDAY_DATE).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}**`;
         document.title = `Joyeux Anniversaire - ${YOUR_NAME}`;
-        // ---------------------------------
-
+        
         const countdownElement = document.getElementById('countdown');
         const countdownTitle = document.getElementById('countdown-title');
         const wishButton = document.getElementById('wish-button');
@@ -188,7 +189,8 @@
             const birthday = new Date(BIRTHDAY_DATE).getTime();
             let distance = birthday - now;
 
-            // Si l'anniversaire est passé pour cette année, calculer l'anniversaire de l'année prochaine
+            // Si l'anniversaire est passé pour cette année (très court laps de temps si l'on suppose que le code est lancé le jour J-1),
+            // on passe à l'année prochaine pour maintenir la boucle du compte à rebours
             if (distance < 0) {
                 const nextYear = new Date(BIRTHDAY_DATE);
                 nextYear.setFullYear(nextYear.getFullYear() + 1);
@@ -263,9 +265,6 @@
         // Initialiser et démarrer la mise à jour
         updateCountdown();
         const countdownInterval = setInterval(updateCountdown, 1000); // Met à jour chaque seconde
-
-        // Lancer les confettis une fois que le compte à rebours atteint zéro
-        // (La fonction updateCountdown le gère)
 
     </script>
 
