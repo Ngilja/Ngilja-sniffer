@@ -1,295 +1,273 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>😇 Vrai ou Faux ? ❌</title>
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      color: #fff;
-      background: linear-gradient(270deg, #ff6ec7, #845ec2, #2c73d2, #0081cf);
-      background-size: 800% 800%;
-      animation: gradientBG 15s ease infinite;
-    }
-    @keyframes gradientBG {
-      0% {background-position: 0% 50%;}
-      50% {background-position: 100% 50%;}
-      100% {background-position: 0% 50%;}
-    }
-    .container {
-      width: 95%;
-      max-width: 550px;
-      background: rgba(0,0,0,0.65);
-      padding: 25px;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-      text-align: center;
-      display: none;
-      animation: fadeIn 1s ease-in-out;
-    }
-    .intro {
-      font-size: 22px;
-      font-weight: bold;
-      animation: pulse 1.5s infinite;
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); color: #fff; }
-      50% { transform: scale(1.1); color: #ffea00; }
-      100% { transform: scale(1); color: #fff; }
-    }
-    .progress {
-      display: flex;
-      justify-content: center;
-      gap: 6px;
-      margin: 15px 0;
-      flex-wrap: wrap;
-    }
-    .dot {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: #555;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: white;
-      transition: 0.3s;
-    }
-    .dot.active { background: #00ff9d; box-shadow: 0 0 8px #00ff9d; }
-    .question {
-      font-size: 20px;
-      margin: 20px 0;
-      font-weight: bold;
-    }
-    .btn {
-      display: inline-block;
-      width: 42%;
-      padding: 12px;
-      margin: 10px;
-      border-radius: 12px;
-      font-size: 18px;
-      cursor: pointer;
-      transition: 0.3s;
-      border: none;
-      font-weight: bold;
-    }
-    .true { background: #00c853; color: white; box-shadow: 0 0 12px #00c853; }
-    .false { background: #d50000; color: white; box-shadow: 0 0 12px #d50000; }
-    .btn:hover { transform: scale(1.05); }
-    .result { font-size: 22px; margin: 20px 0; }
-    .share {
-      background: #25d366;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 12px;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-block;
-      box-shadow: 0 0 10px #25d366;
-      transition: 0.3s;
-    }
-    .share:hover { transform: scale(1.05); }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-      color: #fff;
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    th, td {
-      padding: 10px;
-    }
-    th {
-      background: rgba(255,255,255,0.2);
-    }
-    tr:nth-child(even) { background: rgba(255,255,255,0.08); }
-    tr:hover { background: rgba(255,255,255,0.2); }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joyeux Anniversaire - [Votre Nom]</title>
+    <style>
+        /* --- Styles de Base (CSS) --- */
+        :root {
+            --primary-color: #ff69b4; /* Rose vif */
+            --secondary-color: #4c227f; /* Violet profond */
+            --text-color: #333;
+            --font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #f0f8ff, #fff0f5);
+            font-family: var(--font-family);
+            color: var(--text-color);
+            text-align: center;
+            overflow: hidden; /* Empêche les confettis de causer une barre de défilement */
+        }
+
+        /* --- Conteneur Principal --- */
+        .container {
+            background-color: white;
+            padding: 40px 60px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 10; /* Au-dessus des confettis */
+            transform: scale(0.95);
+            animation: pop-in 0.8s ease-out forwards;
+        }
+
+        @keyframes pop-in {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* --- Titre et Nom --- */
+        h1 {
+            color: var(--primary-color);
+            font-size: 3.5em;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            font-size: 1.8em;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        /* --- Compte à Rebours --- */
+        #countdown-title {
+            font-size: 1.2em;
+            color: var(--text-color);
+            margin-bottom: 15px;
+        }
+
+        #countdown {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .time-unit {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            min-width: 80px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease;
+        }
+
+        .time-unit:hover {
+            transform: translateY(-5px);
+        }
+
+        .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            display: block;
+            line-height: 1;
+        }
+
+        .label {
+            font-size: 0.8em;
+            text-transform: uppercase;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        /* --- Bouton d'Interaction --- */
+        #wish-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 5px 15px rgba(255, 105, 180, 0.4);
+        }
+
+        #wish-button:hover {
+            background-color: #ff1493; /* Un rose plus foncé */
+            transform: scale(1.05);
+        }
+
+        /* --- Effet Confetti (CSS pur pour l'animation de base) --- */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary-color);
+            opacity: 0;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<div id="intro" class="container" style="display:block;">
-  <div class="intro">ÑĞĮĻJÃ_ÑĪJ VOUS REMERCIE POUR VOTRE ENCOURAGEMENT ✅️🆖️🥷🏼✨️</div>
-  <p>Laissez un petit message d’encouragement 💬</p>
-  <button class="btn true" onclick="startCreator()">Créer mon quiz</button>
-  <button class="btn false" onclick="startQuiz()">Jouer</button>
-</div>
+    <div class="container">
+        <h1>Bientôt le Grand Jour !</h1>
+        <h2>Anniversaire de **[Votre Nom]** le **[Date de Naissance]**</h2>
 
-<div id="creator" class="container">
-  <h2>Créer ton quiz 😍</h2>
-  <input type="text" id="creatorName" placeholder="Ton prénom" style="padding:10px;border-radius:8px;width:80%;">
-  <p>Choisis tes réponses (Vrai/Faux)</p>
-  <div id="creatorQuestions"></div>
-  <button class="btn true" onclick="generateLink()">Partager mon quiz</button>
-</div>
+        <div id="countdown-title">Temps restant avant le début de la célébration :</div>
 
-<div id="quiz" class="container">
-  <h2>😇 Vrai ou Faux ? ❌</h2>
-  <div class="progress" id="progress"></div>
-  <div class="question" id="question"></div>
-  <button class="btn true" id="btnTrue">✅ Vrai</button>
-  <button class="btn false" id="btnFalse">❌ Faux</button>
-</div>
+        <div id="countdown">
+            <div class="time-unit">
+                <span class="value" id="days">00</span>
+                <span class="label">Jours</span>
+            </div>
+            <div class="time-unit">
+                <span class="value" id="hours">00</span>
+                <span class="label">Heures</span>
+            </div>
+            <div class="time-unit">
+                <span class="value" id="minutes">00</span>
+                <span class="label">Minutes</span>
+            </div>
+            <div class="time-unit">
+                <span class="value" id="seconds">00</span>
+                <span class="label">Secondes</span>
+            </div>
+        </div>
 
-<div id="result" class="container">
-  <div class="result" id="score"></div>
-  <a class="share" id="shareBtn" target="_blank">Partager sur WhatsApp</a>
-  <br><br>
-  <button class="btn true" onclick="restart()">Créer ton propre quiz</button>
-  <h3>📊 Classement des joueurs</h3>
-  <table id="scoreTable">
-    <tr><th>Joueur</th><th>Score</th></tr>
-  </table>
-</div>
+        <button id="wish-button">Cliquez ici pour laisser un message spécial !</button>
+    </div>
 
-<script>
-  const questions = [
-    "croit aux fantômes ?",
-    "a déjà eu le béguin pour un prof ?",
-    "a peur du noir ?",
-    "aime les films d’horreur ?",
-    "a déjà triché à un examen ?",
-    "aime les animaux ?",
-    "croit au coup de foudre ?",
-    "préfère le chat ?",
-    "chante sous la douche ?",
-    "a déjà pleuré devant un film ?"
-  ];
+    <script>
+        // --- CONFIGURATION À MODIFIER ---
+        const YOUR_NAME = "Yobrunji"; // <<< Mettez votre nom ici
+        const BIRTHDAY_DATE = "November 17, 2025 00:00:00"; // <<< Mettez votre date et heure d'anniversaire (MM/JJ/AAAA HH:MM:SS)
 
-  let creatorAnswers = [];
-  let playerAnswers = [];
-  let currentQuestion = 0;
-  let playerName = "";
-  let players = []; // Tableau des scores
+        document.querySelector('h2').innerHTML = `Anniversaire de **${YOUR_NAME}** le **${new Date(BIRTHDAY_DATE).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}**`;
+        document.title = `Joyeux Anniversaire - ${YOUR_NAME}`;
+        // ---------------------------------
 
-  function playClick(){
-    const ctx = new (window.AudioContext||window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = "square"; osc.frequency.value = 400;
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(); gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.15);
-    osc.stop(ctx.currentTime + 0.15);
-  }
-  function playWin(){
-    const ctx = new (window.AudioContext||window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = "triangle"; osc.frequency.value = 600;
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(); gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1);
-    osc.stop(ctx.currentTime + 1);
-  }
+        const countdownElement = document.getElementById('countdown');
+        const countdownTitle = document.getElementById('countdown-title');
+        const wishButton = document.getElementById('wish-button');
 
-  function startCreator() {
-    playClick();
-    document.getElementById("intro").style.display = "none";
-    document.getElementById("creator").style.display = "block";
-    const cq = document.getElementById("creatorQuestions");
-    cq.innerHTML = "";
-    questions.forEach((q,i)=>{
-      cq.innerHTML += `
-        <p>${i+1}. Je ${q}</p>
-        <button class="btn true" onclick="setAnswer(${i},true)">✅ Vrai</button>
-        <button class="btn false" onclick="setAnswer(${i},false)">❌ Faux</button>
-      `;
-    });
-  }
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const birthday = new Date(BIRTHDAY_DATE).getTime();
+            let distance = birthday - now;
 
-  function setAnswer(i, val) {
-    playClick();
-    creatorAnswers[i] = val;
-  }
+            // Si l'anniversaire est passé pour cette année, calculer l'anniversaire de l'année prochaine
+            if (distance < 0) {
+                const nextYear = new Date(BIRTHDAY_DATE);
+                nextYear.setFullYear(nextYear.getFullYear() + 1);
+                distance = nextYear.getTime() - now;
+            }
 
-  function generateLink() {
-    playClick();
-    const name = document.getElementById("creatorName").value || "Ngilja";
-    const data = btoa(JSON.stringify(creatorAnswers));
-    const link = `${window.location.origin}${window.location.pathname}?nom=${encodeURIComponent(name)}&quiz=${data}`;
-    alert("Lien prêt : " + link);
-    window.open("https://wa.me/?text=" + encodeURIComponent("😇 Vrai ou Faux ? ❌\nDécouvre si tu connais " + name + " 👉 " + link), "_blank");
-  }
+            // Calcul du temps
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-  function startQuiz() {
-    playClick();
-    const params = new URLSearchParams(window.location.search);
-    playerName = params.get("nom") || "Ngilja";
-    const data = params.get("quiz");
-    if(data){
-      creatorAnswers = JSON.parse(atob(data));
-    }
-    document.getElementById("intro").style.display = "none";
-    document.getElementById("quiz").style.display = "block";
-    loadQuestion();
-  }
+            if (distance > 0) {
+                // Afficher le compte à rebours
+                document.getElementById('days').textContent = String(days).padStart(2, '0');
+                document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+                document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+                document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+            } else {
+                // Anniversaire A ARRIVÉ !
+                countdownTitle.textContent = "🥳 C'EST VOTRE ANNIVERSAIRE MAINTENANT ! 🥳";
+                document.querySelector('h1').textContent = `🎉 Joyeux Anniversaire ${YOUR_NAME} ! 🎉`;
+                countdownElement.innerHTML = `<h3 style="color:var(--primary-color); font-size:2em;">Que la fête commence !</h3>`;
+                wishButton.textContent = "Envoyer mes vœux maintenant !";
 
-  function loadQuestion() {
-    if(currentQuestion >= questions.length) {
-      showResult();
-      return;
-    }
-    document.getElementById("question").innerText = `Est-ce que ${playerName} ${questions[currentQuestion]}`;
-    const progress = document.getElementById("progress");
-    progress.innerHTML = "";
-    for(let i=0;i<questions.length;i++){
-      progress.innerHTML += `<div class="dot ${i===currentQuestion?"active":""}">${i+1}</div>`;
-    }
-  }
+                // Lancer une pluie de confettis non-stop
+                startConfettiRain();
 
-  function handleAnswer(val) {
-    playClick();
-    playerAnswers.push(val);
-    currentQuestion++;
-    loadQuestion();
-  }
+                // Arrêter la mise à jour du compteur
+                clearInterval(countdownInterval);
+            }
+        }
 
-  function showResult() {
-    playWin();
-    document.getElementById("quiz").style.display = "none";
-    document.getElementById("result").style.display = "block";
-    let score = 0;
-    for(let i=0;i<questions.length;i++){
-      if(playerAnswers[i] === creatorAnswers[i]) score++;
-    }
-    document.getElementById("score").innerText = `🔥 Tu connais ${playerName} à ${score}/${questions.length} !`;
-    document.getElementById("shareBtn").href = "https://wa.me/?text=" + encodeURIComponent("🔥 J’ai eu " + score + "/" + questions.length + " en connaissant " + playerName + " ! Essaye aussi 👉 " + window.location.href);
+        // --- Logique des Confettis (Révolutionnaire) ---
+        const colors = ['#ff69b4', '#4c227f', '#ffcc00', '#00bcd4', '#ff8c00'];
 
-    // Ajouter joueur et trier
-    players.push({name: playerName, score});
-    players.sort((a,b)=>b.score - a.score);
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.left = `${Math.random() * 100}vw`;
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDuration = `${Math.random() * 3 + 2}s`; // 2 à 5 secondes
+            confetti.style.animationDelay = `-${Math.random() * 5}s`; // Pour qu'ils ne démarrent pas tous en même temps
+            confetti.style.width = confetti.style.height = `${Math.random() * 8 + 5}px`;
+            document.body.appendChild(confetti);
 
-    // Rafraîchir tableau
-    const table = document.getElementById("scoreTable");
-    table.innerHTML = "<tr><th>Joueur</th><th>Score</th></tr>";
-    players.forEach(p=>{
-      const row = table.insertRow(-1);
-      row.insertCell(0).innerText = p.name;
-      row.insertCell(1).innerText = `${p.score}/${questions.length}`;
-    });
-  }
+            // Supprimer le confettis après la fin de son animation pour éviter l'encombrement du DOM
+            confetti.addEventListener('animationend', () => {
+                confetti.remove();
+            });
+        }
 
-  function restart() {
-    playClick();
-    window.location.href = window.location.origin + window.location.pathname;
-  }
+        let confettiInterval;
+        function startConfettiRain() {
+            if (!confettiInterval) {
+                confettiInterval = setInterval(createConfetti, 100); // Crée un confettis toutes les 100ms
+                // Faire un gros lancement initial
+                for (let i = 0; i < 50; i++) {
+                    createConfetti();
+                }
+            }
+        }
 
-  document.addEventListener("DOMContentLoaded",()=>{
-    document.getElementById("btnTrue").addEventListener("click", ()=>handleAnswer(true));
-    document.getElementById("btnFalse").addEventListener("click", ()=>handleAnswer(false));
-  });
-</script>
+        // --- Logique du Bouton ---
+        wishButton.addEventListener('click', () => {
+            alert(`🎉 Message pour ${YOUR_NAME} : Joyeux Anniversaire ! Vos vœux ont été enregistrés ! 🎉`);
+            // Ici, vous pourriez ajouter une logique pour enregistrer réellement le message
+            // (Nécessiterait un backend, non inclus ici pour la simplicité.)
+        });
+
+
+        // Initialiser et démarrer la mise à jour
+        updateCountdown();
+        const countdownInterval = setInterval(updateCountdown, 1000); // Met à jour chaque seconde
+
+        // Lancer les confettis une fois que le compte à rebours atteint zéro
+        // (La fonction updateCountdown le gère)
+
+    </script>
 
 </body>
 </html>
