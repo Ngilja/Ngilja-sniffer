@@ -1,0 +1,4 @@
+// --- CONFIGURATION À MODIFIER ---
+const YOUR_NAME = "NGILJANIJ"; // <<< Mettez votre nom ici
+const BIRTHDAY_DATE = "November 17, 2025 00:00:00"; // <<< Mettez votre date et heure d'anniversaire (MM/JJ/AAAA HH:MM:SS)
+// ---------------------------------
