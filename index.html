@@ -7,10 +7,11 @@
     <style>
         /* --- Styles de Base (CSS) --- */
         :root {
-            --primary-color: #ff69b4; /* Rose vif */
-            --secondary-color: #4c227f; /* Violet profond */
-            --text-color: #333;
-            --font-family: 'Arial', sans-serif;
+            --primary-color: #ffcc00; /* Jaune Éclair (CoD Style) */
+            --secondary-color: #222222; /* Noir Profond */
+            --text-color-dark: #222222;
+            --text-color-light: #f0f0f0; /* Pour le texte sur fond noir */
+            --font-family: 'Montserrat', sans-serif; /* Police plus moderne et "impact" */
         }
 
         body {
@@ -20,22 +21,24 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background: linear-gradient(135deg, #f0f8ff, #fff0f5);
+            /* Fond gris sombre pour le style militaire */
+            background: linear-gradient(135deg, #1a1a1a, #333333); 
             font-family: var(--font-family);
-            color: var(--text-color);
+            color: var(--text-color-light);
             text-align: center;
-            overflow: hidden; /* Empêche les confettis de causer une barre de défilement */
+            overflow: hidden; 
         }
 
         /* --- Conteneur Principal --- */
         .container {
-            background-color: white;
+            background-color: var(--secondary-color);
             padding: 40px 60px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border-radius: 10px; /* Bords moins arrondis pour un look plus agressif */
+            box-shadow: 0 0 20px var(--primary-color), 0 0 40px rgba(255, 204, 0, 0.4); /* Ombre jaune */
             position: relative;
-            z-index: 10; /* Au-dessus des confettis */
+            z-index: 10;
             transform: scale(0.95);
+            border: 3px solid var(--primary-color); /* Bordure d'alerte */
             animation: pop-in 0.8s ease-out forwards;
         }
 
@@ -49,43 +52,47 @@
             color: var(--primary-color);
             font-size: 3.5em;
             margin-bottom: 5px;
-            letter-spacing: 2px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            letter-spacing: 5px;
+            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
+            font-weight: 900;
         }
 
         h2 {
-            color: var(--secondary-color);
+            color: var(--text-color-light);
             font-size: 1.8em;
             margin-top: 0;
             margin-bottom: 20px;
+            text-transform: uppercase;
         }
 
         /* --- Compte à Rebours --- */
         #countdown-title {
             font-size: 1.2em;
-            color: var(--text-color);
+            color: var(--primary-color);
             margin-bottom: 15px;
+            text-shadow: 0 0 5px var(--primary-color);
         }
 
         #countdown {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 15px;
             margin-bottom: 30px;
         }
 
         .time-unit {
-            background-color: var(--secondary-color);
-            color: white;
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
             padding: 15px 20px;
-            border-radius: 10px;
-            min-width: 80px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transition: transform 0.2s ease;
+            border-radius: 5px;
+            min-width: 70px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s ease, background-color 0.3s;
         }
 
         .time-unit:hover {
-            transform: translateY(-5px);
+            transform: translateY(-5px) scale(1.1);
+            background-color: #ffff66; /* Jaune plus clair au survol */
         }
 
         .value {
@@ -93,30 +100,34 @@
             font-weight: bold;
             display: block;
             line-height: 1;
+            /* Style numérique futuriste */
+            font-family: monospace; 
         }
 
         .label {
             font-size: 0.8em;
             text-transform: uppercase;
             margin-top: 5px;
-            opacity: 0.8;
+            font-weight: 700;
         }
 
         /* --- Bouton d'Interaction --- */
         #wish-button {
             background-color: var(--primary-color);
-            color: white;
+            color: var(--secondary-color);
             border: none;
             padding: 15px 30px;
             font-size: 1.2em;
-            border-radius: 50px;
+            border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s, transform 0.2s;
-            box-shadow: 0 5px 15px rgba(255, 105, 180, 0.4);
+            box-shadow: 0 0 10px var(--primary-color);
+            font-weight: 800;
+            text-transform: uppercase;
         }
 
         #wish-button:hover {
-            background-color: #ff1493; /* Un rose plus foncé */
+            background-color: #ffff66; 
             transform: scale(1.05);
         }
 
@@ -125,7 +136,7 @@
             position: absolute;
             width: 10px;
             height: 10px;
-            background-color: var(--primary-color);
+            background-color: var(--primary-color); /* Confettis Jaunes et Blancs */
             opacity: 0;
             border-radius: 50%;
             pointer-events: none;
@@ -134,7 +145,7 @@
 
         @keyframes fall {
             to {
-                transform: translateY(100vh);
+                transform: translateY(100vh) rotate(360deg);
                 opacity: 0;
             }
         }
@@ -143,10 +154,10 @@
 <body>
 
     <div class="container">
-        <h1>Bientôt le Grand Jour !</h1>
-        <h2>Anniversaire de **NGILJA NIJ** le **17 novembre**</h2>
+        <h1>[ ALERTE ACTIVÉE ]</h1>
+        <h2>ANNIVERSAIRE DE **NGILJA NIJ** PRÉVU LE **17 NOVEMBRE**</h2>
 
-        <div id="countdown-title">Temps restant avant le début de la célébration :</div>
+        <div id="countdown-title">TEMPS RESTANT AVANT LA CÉLÉBRATION (H-HOUR) :</div>
 
         <div id="countdown">
             <div class="time-unit">
@@ -167,17 +178,17 @@
             </div>
         </div>
 
-        <button id="wish-button">Cliquez ici pour laisser un message spécial !</button>
+        <button id="wish-button">ACTIVER LES VŒUX DE JOYEUSES ANNIVERSAIRE</button>
     </div>
 
     <script>
         // --- CONFIGURATION À MODIFIER ---
         const YOUR_NAME = "NGILJA NIJ"; 
-        // L'anniversaire est demain : 17 novembre 2025 à 00:00:00
+        // L'anniversaire est réglé pour demain (17 novembre 2025) à minuit
         const BIRTHDAY_DATE = "November 17, 2025 00:00:00"; 
         // ---------------------------------
 
-        document.querySelector('h2').innerHTML = `Anniversaire de **${YOUR_NAME}** le **${new Date(BIRTHDAY_DATE).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}**`;
+        document.querySelector('h2').innerHTML = `ANNIVERSAIRE DE **${YOUR_NAME}** PRÉVU LE **${new Date(BIRTHDAY_DATE).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}**`;
         document.title = `Joyeux Anniversaire - ${YOUR_NAME}`;
         
         const countdownElement = document.getElementById('countdown');
@@ -189,9 +200,8 @@
             const birthday = new Date(BIRTHDAY_DATE).getTime();
             let distance = birthday - now;
 
-            // Si l'anniversaire est passé pour cette année (très court laps de temps si l'on suppose que le code est lancé le jour J-1),
-            // on passe à l'année prochaine pour maintenir la boucle du compte à rebours
             if (distance < 0) {
+                // Si l'anniversaire est passé, on calcule celui de l'année prochaine
                 const nextYear = new Date(BIRTHDAY_DATE);
                 nextYear.setFullYear(nextYear.getFullYear() + 1);
                 distance = nextYear.getTime() - now;
@@ -210,11 +220,11 @@
                 document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
                 document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
             } else {
-                // Anniversaire A ARRIVÉ !
-                countdownTitle.textContent = "🥳 C'EST VOTRE ANNIVERSAIRE MAINTENANT ! 🥳";
-                document.querySelector('h1').textContent = `🎉 Joyeux Anniversaire ${YOUR_NAME} ! 🎉`;
-                countdownElement.innerHTML = `<h3 style="color:var(--primary-color); font-size:2em;">Que la fête commence !</h3>`;
-                wishButton.textContent = "Envoyer mes vœux maintenant !";
+                // Anniversaire A ARRIVÉ (H-HOUR atteint) !
+                countdownTitle.textContent = "MISSION ACCOMPLIE - FÉLICITATIONS, C'EST LE JOUR J !";
+                document.querySelector('h1').textContent = `[ OPÉRATION JOYEUSES ANNIVERSAIRE ]`;
+                countdownElement.innerHTML = `<h3 style="color:var(--primary-color); font-size:2em; letter-spacing: 3px;">CODE ROUGE : FÊTE IMMÉDIATE !</h3>`;
+                wishButton.textContent = "ENVOI DU PAQUET VŒUX À NGILJA NIJ";
 
                 // Lancer une pluie de confettis non-stop
                 startConfettiRain();
@@ -224,20 +234,19 @@
             }
         }
 
-        // --- Logique des Confettis (Révolutionnaire) ---
-        const colors = ['#ff69b4', '#4c227f', '#ffcc00', '#00bcd4', '#ff8c00'];
+        // --- Logique des Confettis ---
+        const colors = ['#ffcc00', '#ffffff', '#222222']; // Jaune, Blanc, Noir
 
         function createConfetti() {
             const confetti = document.createElement('div');
             confetti.classList.add('confetti');
             confetti.style.left = `${Math.random() * 100}vw`;
             confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-            confetti.style.animationDuration = `${Math.random() * 3 + 2}s`; // 2 à 5 secondes
-            confetti.style.animationDelay = `-${Math.random() * 5}s`; // Pour qu'ils ne démarrent pas tous en même temps
+            confetti.style.animationDuration = `${Math.random() * 3 + 2}s`; 
+            confetti.style.animationDelay = `-${Math.random() * 5}s`; 
             confetti.style.width = confetti.style.height = `${Math.random() * 8 + 5}px`;
             document.body.appendChild(confetti);
 
-            // Supprimer le confettis après la fin de son animation pour éviter l'encombrement du DOM
             confetti.addEventListener('animationend', () => {
                 confetti.remove();
             });
@@ -246,8 +255,8 @@
         let confettiInterval;
         function startConfettiRain() {
             if (!confettiInterval) {
-                confettiInterval = setInterval(createConfetti, 100); // Crée un confettis toutes les 100ms
-                // Faire un gros lancement initial
+                confettiInterval = setInterval(createConfetti, 100); 
+                // Lancement initial de 50 confettis pour l'effet "BAM !"
                 for (let i = 0; i < 50; i++) {
                     createConfetti();
                 }
@@ -256,15 +265,13 @@
 
         // --- Logique du Bouton ---
         wishButton.addEventListener('click', () => {
-            alert(`🎉 Message pour ${YOUR_NAME} : Joyeux Anniversaire ! Vos vœux ont été enregistrés ! 🎉`);
-            // Ici, vous pourriez ajouter une logique pour enregistrer réellement le message
-            // (Nécessiterait un backend, non inclus ici pour la simplicité.)
+            alert(`🎉 ${YOUR_NAME} : VŒUX TRANSMIS AVEC SUCCÈS ! Joyeux Anniversaire ! 🎉`);
         });
 
 
         // Initialiser et démarrer la mise à jour
         updateCountdown();
-        const countdownInterval = setInterval(updateCountdown, 1000); // Met à jour chaque seconde
+        const countdownInterval = setInterval(updateCountdown, 1000); 
 
     </script>
 
