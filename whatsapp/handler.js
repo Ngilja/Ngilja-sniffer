@@ -1,70 +1,111 @@
 /**
- * Traitement des commandes WhatsApp
- * Putain de menu et tout le bordel
+ * ======================================================
+ *  ÑĞĮĻJÃ_ÑĪJ - Gestionnaire des commandes WhatsApp
+ * ======================================================
  */
 
-const config = require('../../config/settings.json');
-const { downloadYouTube, downloadTikTok, downloadInstagram } = require('../features/downloader');
-const { processAI } = require('../features/ai');
+const fs = require("fs");
+const path = require("path");
+const downloader = require("../features/downloader");
+const ai = require("../features/ai");
 
-async function handleMessage(sock, msg) {
-    const text = msg.message?.conversation || 
-                 msg.message?.extendedTextMessage?.text || '';
-    const sender = msg.key.remoteJid;
-    const isGroup = sender.includes('@g.us');
-    
-    // Commandes owner
-    const ownerCommands = ['!mode', '!broadcast', '!eval'];
-    const isOwner = sender === config.OWNER_NUMBER;
-    
-    // Menu
-    if (text === '!menu') {
-        const menu = `
-*🧰 MENU ÑĞĮĻJÃ_ÑĪJ*
+module.exports = async (sock, msg, logger, settings) => {
+  try {
+    const from = msg.key.remoteJid;
+    const isGroup = from.endsWith("@g.us");
+    const sender = msg.key.participant || from;
 
-*Téléchargement:*
-• !yt <url> - YouTube vidéo
-• !ytmp3 <url> - YouTube audio
-• !tt <url> - TikTok
-• !ig <url> - Instagram
+    const body =
+      msg.message?.conversation ||
+      msg.message?.extendedTextMessage?.text ||
+      "";
 
-*IA:*
-• !ai <question> - Chat IA
-• !img <prompt> - Générer image
+    const prefix = settings.prefix;
+    if (!body.startsWith(prefix)) return;
 
-*Owner:*
-• !mode <public/private>
-• !bc <message>
+    const args = body.slice(prefix.length).trim().split(/ +/);
+    const command = args.shift().toLowerCase();
 
-*Autres:*
-• !ping - Vérifier bot
-• !info - Infos bot
-        `;
-        await sock.sendMessage(sender, { text: menu });
+    const isOwner = settings.owner.includes(sender);
+
+    // 🔒 Mode privé
+    if (settings.mode === "private" && !isOwner) {
+      return sock.sendMessage(from, {
+        text: "⛔ Bot en mode privé."
+      });
     }
-    
-    // YouTube download
-    if (text.startsWith('!yt ')) {
-        const url = text.split(' ')[1];
-        await sock.sendMessage(sender, { text: 'Téléchargement YouTube en cours, merde...' });
-        const video = await downloadYouTube(url);
-        await sock.sendMessage(sender, { 
-            video: { url: video.path },
-            caption: 'Voilà ta putain de vidéo YouTube!'
+
+    logger.info(`📩 Commande: ${command} | De: ${sender}`);
+
+    switch (command) {
+      case "menu":
+        await sock.sendMessage(from, {
+          text: `
+🤖 *ÑĞĮĻJÃ_ÑĪJ - MENU*
+
+📌 Commandes générales
+• ${prefix}menu
+• ${prefix}ping
+
+⬇️ Téléchargements
+• ${prefix}yta <lien>
+• ${prefix}ytv <lien>
+• ${prefix}tt <lien>
+• ${prefix}ig <lien>
+
+🧠 Intelligence Artificielle
+• ${prefix}ai <question>
+
+⚙️ Owner
+• ${prefix}public
+• ${prefix}private
+• ${prefix}restart
+`
+        });
+        break;
+
+      case "ping":
+        await sock.sendMessage(from, { text: "🏓 Pong !" });
+        break;
+
+      case "public":
+        if (!isOwner) return;
+        settings.mode = "public";
+        fs.writeFileSync("./config/settings.json", JSON.stringify(settings, null, 2));
+        await sock.sendMessage(from, { text: "✅ Mode public activé." });
+        break;
+
+      case "private":
+        if (!isOwner) return;
+        settings.mode = "private";
+        fs.writeFileSync("./config/settings.json", JSON.stringify(settings, null, 2));
+        await sock.sendMessage(from, { text: "🔒 Mode privé activé." });
+        break;
+
+      case "restart":
+        if (!isOwner) return;
+        await sock.sendMessage(from, { text: "♻️ Redémarrage du bot..." });
+        process.exit(0);
+        break;
+
+      case "yta":
+      case "ytv":
+      case "tt":
+      case "ig":
+        await downloader(sock, from, command, args);
+        break;
+
+      case "ai":
+        await ai(sock, from, args.join(" "));
+        break;
+
+      default:
+        await sock.sendMessage(from, {
+          text: "❓ Commande inconnue. Tape *menu*."
         });
     }
-    
-    // IA
-    if (text.startsWith('!ai ')) {
-        const question = text.replace('!ai ', '');
-        const response = await processAI(question);
-        await sock.sendMessage(sender, { text: response });
-    }
-    
-    // Ping
-    if (text === '!ping') {
-        await sock.sendMessage(sender, { text: 'PONG! Bot actif, bordel!' });
-    }
-}
 
-module.exports = { handleMessage };
+  } catch (err) {
+    logger.error("❌ Erreur handler :", err);
+  }
+};
