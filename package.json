@@ -1,0 +1,42 @@
+{
+  "name": "ngilja-nij-bot",
+  "version": "1.0.0",
+  "description": "Bot WhatsApp Multi-Device ÑĞĮĻJÃ_ÑĪJ avec Telegram intégré",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"No tests yet\" && exit 0",
+    "deploy": "echo \"Ready for Vercel/Railway deployment\""
+  },
+  "keywords": [
+    "whatsapp-bot",
+    "telegram-bot",
+    "multi-device",
+    "baileys",
+    "termux",
+    "vercel"
+  ],
+  "author": "TON_NOM",
+  "license": "MIT",
+  "dependencies": {
+    "@adiwajshing/baileys": "^6.5.0",
+    "node-telegram-bot-api": "^0.61.0",
+    "axios": "^1.6.0",
+    "qrcode-terminal": "^0.12.0",
+    "fs-extra": "^11.1.1",
+    "pino": "^8.15.0",
+    "chalk": "^4.1.2",
+    "moment-timezone": "^0.5.43"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TON_USERNAME/ngilja-nij.git"
+  }
+}
