@@ -1,10 +1,30 @@
 {
-  "BOT_NAME": "ÑĞĮĻJÃ_ÑĪJ",
-  "OWNER_NUMBER": "22500000000",
-  "TELEGRAM_TOKEN": "8064734295:AAEVRF2FDMA2HMyZVX3jyjz8r3zKTo-RZ00",
-  "WHATSAPP_PAIRING_CODE": "",
-  "MODE": "public",
-  "AI_PROVIDER": "gemini",
-  "AI_API_KEY": "ton_api_key_ici",
-  "LOG_LEVEL": "detailed"
+  "botName": "ÑĞĮĻJÃ_ÑĪJ",
+
+  "owner": {
+    "name": "NGILJA",
+    "number": "243990774206",
+    "telegramId": 0
+  },
+
+  "whatsapp": {
+    "mode": "public",
+    "antiDelete": true,
+    "antiViewOnce": true,
+    "antiCall": true
+  },
+
+  "telegram": {
+    "token": "8064734295:AAE9C3i5L0DALHaE1Q8LYWa-kbmatJhy4EM"
+  },
+
+  "ai": {
+    "provider": "gemini",
+    "apiKey": "AIzaSyB-ccag-IPwQkxn9NCGzGK1nfKKLALIe3E"
+  },
+
+  "logs": {
+    "enabled": true,
+    "language": "fr"
+  }
 }
