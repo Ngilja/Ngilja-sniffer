@@ -1,67 +1,63 @@
 /**
- * Connexion WhatsApp Multi-Device
- * Putain de pairing code au lieu du QR
+ * ======================================================
+ *  ÑĞĮĻJÃ_ÑĪJ - Connexion WhatsApp Multi-Device
+ * ======================================================
  */
 
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@adiwajshing/baileys');
-const chalk = require('chalk');
-const fs = require('fs').promises;
-const path = require('path');
+const {
+  default: makeWASocket,
+  useMultiFileAuthState,
+  DisconnectReason
+} = require("@adiwajshing/baileys");
 
-// Stocker la session
-let sock = null;
+const path = require("path");
+const fs = require("fs-extra");
 
-async function initWhatsApp() {
-    const { state, saveCreds } = await useMultiFileAuthState('./whatsapp_session');
-    
-    sock = makeWASocket({
-        auth: state,
-        printQRInTerminal: false,
-        logger: { level: 'silent' }
-    });
+module.exports = async (logger, settings) => {
+  // Dossier de session WhatsApp
+  const authPath = path.join(__dirname, "../auth_info");
 
-    sock.ev.on('creds.update', saveCreds);
-    
-    sock.ev.on('connection.update', async (update) => {
-        const { connection, lastDisconnect, qr } = update;
-        
-        if (qr) {
-            console.log(chalk.yellow('PUTAIN! QR reçu, mais on veut pairing code!'));
-        }
-        
-        if (connection === 'close') {
-            const shouldReconnect = lastDisconnect.error?.output?.statusCode !== DisconnectReason.loggedOut;
-            console.log(chalk.red('Connexion fermée, reconnexion...'), shouldReconnect);
-            if (shouldReconnect) {
-                initWhatsApp();
-            }
-        } else if (connection === 'open') {
-            console.log(chalk.green('Bot WhatsApp connecté, bordel!'));
-            
-            // Enregistrer le numéro
-            const user = sock.user;
-            console.log(chalk.blue(`Connecté en tant que: ${user.id}`));
-        }
-    });
-    
-    // Charger les handlers
-    require('./events')(sock);
-    
-    return sock;
-}
+  // Charger / créer la session
+  const { state, saveCreds } = await useMultiFileAuthState(authPath);
 
-// Fonction pour générer pairing code
-async function generatePairingCode(phoneNumber) {
-    if (!sock) throw new Error('Socket pas initialisé, merde!');
-    
-    try {
-        const code = await sock.requestPairingCode(phoneNumber);
-        console.log(chalk.green(`Code de pairing: ${code}`));
-        return code;
-    } catch (err) {
-        console.log(chalk.red('Erreur pairing:'), err);
-        throw err;
+  // Créer la connexion WhatsApp
+  const sock = makeWASocket({
+    auth: state,
+    printQRInTerminal: false, // ❌ PAS DE QR
+    logger,
+    browser: ["ÑĞĮĻJÃ_ÑĪJ", "Chrome", "1.0.0"]
+  });
+
+  // Sauvegarde automatique de la session
+  sock.ev.on("creds.update", saveCreds);
+
+  // Gestion connexion / déconnexion
+  sock.ev.on("connection.update", (update) => {
+    const { connection, lastDisconnect, pairingCode } = update;
+
+    if (pairingCode) {
+      logger.info(`🔐 Code WhatsApp généré : ${pairingCode}`);
+      logger.info("📲 Entrez ce code dans WhatsApp > Appareils liés");
     }
-}
 
-module.exports = { initWhatsApp, generatePairingCode };
+    if (connection === "open") {
+      logger.info("✅ WhatsApp connecté avec succès !");
+    }
+
+    if (connection === "close") {
+      const reason = lastDisconnect?.error?.output?.statusCode;
+
+      if (reason === DisconnectReason.loggedOut) {
+        logger.error("❌ Déconnecté de WhatsApp (session supprimée)");
+      } else {
+        logger.warn("⚠️ Connexion perdue, reconnexion...");
+        module.exports(logger, settings);
+      }
+    }
+  });
+
+  // Charger les événements WhatsApp
+  require("./events")(sock, logger, settings);
+
+  return sock;
+};
