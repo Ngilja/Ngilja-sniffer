@@ -1,13 +1,10 @@
 {
-  "botName": "ÑĞĮĻJÃ_ÑĪJ",
-  "ownerNumber": "243990774206",
-  "whatsapp": {
-    "pairingCode": true,
-    "browser": ["ÑĞĮĻJÃ_ÑĪJ", "Chrome", "1.0.0"]
-  },
-  "features": {
-    "antidelete": true,
-    "publicMode": true,
-    "autoReply": true
-  }
+  "BOT_NAME": "ÑĞĮĻJÃ_ÑĪJ",
+  "OWNER_NUMBER": "22500000000",
+  "TELEGRAM_TOKEN": "8064734295:AAEVRF2FDMA2HMyZVX3jyjz8r3zKTo-RZ00",
+  "WHATSAPP_PAIRING_CODE": "",
+  "MODE": "public",
+  "AI_PROVIDER": "gemini",
+  "AI_API_KEY": "ton_api_key_ici",
+  "LOG_LEVEL": "detailed"
 }
