@@ -1,35 +1,13 @@
 {
   "botName": "ÑĞĮĻJÃ_ÑĪJ",
-  "ownerNumber": "33612345678",
-  "ownerName": "Propriétaire",
+  "ownerNumber": "243990774206",
   "whatsapp": {
     "pairingCode": true,
-    "browser": ["ÑĞĮĻJÃ_ÑĪJ", "Chrome", "1.0.0"],
-    "maxRetries": 5
-  },
-  "telegram": {
-    "enabled": false,
-    "token": "8064734295:AAGNgdaOmphjRxnvXwDnCIwtzUGUfUx2zjw",
-    "ownerId": null
+    "browser": ["ÑĞĮĻJÃ_ÑĪJ", "Chrome", "1.0.0"]
   },
   "features": {
     "antidelete": true,
-    "antiviewonce": true,
-    "antical": true,
     "publicMode": true,
-    "autoReply": true,
-    "aiEnabled": false,
-    "downloads": true
-  },
-  "ai": {
-    "provider": "openai",
-    "apiKey": "",
-    "model": "gpt-3.5-turbo"
-  },
-  "paths": {
-    "sessions": "./sessions",
-    "downloads": "./downloads",
-    "logs": "./logs"
-  },
-  "version": "1.0.0"
+    "autoReply": true
+  }
 }
