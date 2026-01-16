@@ -4,49 +4,119 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ÑĞĮĻJÃ_ÑĪJ Bot</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; background: #121212; color: #fff; padding: 20px; }
-    h1 { color: #00ff99; }
-    textarea { width: 100%; height: 100px; margin-bottom: 10px; }
-    button { padding: 10px 20px; background: #00ff99; border: none; cursor: pointer; }
-    #response { margin-top: 20px; white-space: pre-wrap; }
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      color: #fff;
+    }
+    header {
+      text-align: center;
+      padding: 40px 20px;
+      background: rgba(0,0,0,0.2);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+    }
+    header h1 {
+      font-size: 2.5em;
+      margin: 0;
+      color: #ffdd59;
+      text-shadow: 2px 2px 5px #000;
+    }
+    header p {
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+    main {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 30px 10px;
+      gap: 20px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      width: 250px;
+      padding: 20px;
+      text-align: center;
+      transition: transform 0.3s, background 0.3s;
+      box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+    }
+    .card:hover {
+      transform: scale(1.05);
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .card img {
+      width: 100px;
+      margin-bottom: 15px;
+    }
+    .card h2 {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+      color: #ffdd59;
+    }
+    .card p {
+      font-size: 1em;
+      margin-bottom: 15px;
+    }
+    .card a {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 25px;
+      text-decoration: none;
+      color: #fff;
+      background: linear-gradient(to right, #ff416c, #ff4b2b);
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    .card a:hover {
+      background: linear-gradient(to right, #ff4b2b, #ff416c);
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: rgba(0,0,0,0.2);
+      font-size: 0.9em;
+    }
   </style>
 </head>
 <body>
-  <h1>ÑĞĮĻJÃ_ÑĪJ Bot</h1>
-  <p>Pose ta question à l'IA :</p>
-  <textarea id="question"></textarea>
-  <button onclick="askAI()">Envoyer</button>
-  <div id="response"></div>
 
-  <script>
-    async function askAI() {
-      const question = document.getElementById('question').value;
-      if (!question) return alert('Écris une question !');
+  <header>
+    <h1>ÑĞĮĻJÃ_ÑĪJ Bot</h1>
+    <p>Bot WhatsApp & Telegram Multi-Device | AI & Features avancées</p>
+  </header>
 
-      const responseDiv = document.getElementById('response');
-      responseDiv.textContent = "💡 En cours de traitement...";
+  <main>
+    <div class="card">
+      <img src="https://img.icons8.com/color/96/000000/whatsapp.png" alt="WhatsApp">
+      <h2>WhatsApp</h2>
+      <p>Connecte ton compte WhatsApp et utilise toutes les fonctionnalités de SubZero.</p>
+      <a href="whatsapp/connect.html" target="_blank">Ouvrir WhatsApp</a>
+    </div>
 
-      try {
-        const res = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Bearer AIzaSyB-ccag-IPwQkxn9NCGzGK1nfKKLALIe3E',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: 'gpt-4',
-            messages: [{ role: 'user', content: question }]
-          })
-        });
+    <div class="card">
+      <img src="https://img.icons8.com/color/96/000000/telegram-app.png" alt="Telegram">
+      <h2>Telegram</h2>
+      <p>Active le bot Telegram avec ton API et communique directement avec lui.</p>
+      <a href="telegram/bot.html" target="_blank">Ouvrir Telegram</a>
+    </div>
 
-        const data = await res.json();
-        const answer = data.choices[0].message.content;
-        responseDiv.textContent = "🤖 Réponse AI :\n" + answer;
-      } catch (err) {
-        responseDiv.textContent = "❌ Erreur : " + err.message;
-      }
-    }
-  </script>
+    <div class="card">
+      <img src="https://img.icons8.com/color/96/000000/artificial-intelligence.png" alt="AI">
+      <h2>AI Features</h2>
+      <p>Intelligence artificielle intégrée pour répondre automatiquement et gérer des tâches.</p>
+      <a href="features/ai.html" target="_blank">Explorer AI</a>
+    </div>
+  </main>
+
+  <footer>
+    © 2026 ÑĞĮĻJÃ_ÑĪJ Bot - Tous droits réservés
+  </footer>
+
 </body>
 </html>
