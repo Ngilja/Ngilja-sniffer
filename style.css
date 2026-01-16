@@ -1,0 +1,81 @@
+/* style.css - Design pro pour ÑĞĮĻJÃ_ÑĪJ */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1e1e2f, #2e2e4f);
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #4b00ff;
+    padding: 20px;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 5px #000;
+}
+
+main {
+    padding: 20px;
+}
+
+section {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}
+
+button {
+    background-color: #7f00ff;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background-color: #9a33ff;
+    transform: translateY(-2px);
+}
+
+.log {
+    font-family: monospace;
+    background-color: rgba(0,0,0,0.6);
+    padding: 10px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin-bottom: 10px;
+    color: #00ff9f;
+}
+
+.success {
+    color: #4fff4f;
+    font-weight: bold;
+}
+
+.error {
+    color: #ff4f4f;
+    font-weight: bold;
+}
+
+.warning {
+    color: #ffcc00;
+    font-weight: bold;
+}
+
+a {
+    color: #7f00ff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
