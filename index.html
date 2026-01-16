@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ÑĞĮĻJÃ_ÑĪJ Bot</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #121212; color: #fff; padding: 20px; }
+    h1 { color: #00ff99; }
+    textarea { width: 100%; height: 100px; margin-bottom: 10px; }
+    button { padding: 10px 20px; background: #00ff99; border: none; cursor: pointer; }
+    #response { margin-top: 20px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>ÑĞĮĻJÃ_ÑĪJ Bot</h1>
+  <p>Pose ta question à l'IA :</p>
+  <textarea id="question"></textarea>
+  <button onclick="askAI()">Envoyer</button>
+  <div id="response"></div>
+
+  <script>
+    async function askAI() {
+      const question = document.getElementById('question').value;
+      if (!question) return alert('Écris une question !');
+
+      const responseDiv = document.getElementById('response');
+      responseDiv.textContent = "💡 En cours de traitement...";
+
+      try {
+        const res = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer AIzaSyB-ccag-IPwQkxn9NCGzGK1nfKKLALIe3E',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'gpt-4',
+            messages: [{ role: 'user', content: question }]
+          })
+        });
+
+        const data = await res.json();
+        const answer = data.choices[0].message.content;
+        responseDiv.textContent = "🤖 Réponse AI :\n" + answer;
+      } catch (err) {
+        responseDiv.textContent = "❌ Erreur : " + err.message;
+      }
+    }
+  </script>
+</body>
+</html>
