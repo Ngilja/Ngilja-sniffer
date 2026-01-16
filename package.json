@@ -1,0 +1,24 @@
+{
+  "name": "ngilja-nij",
+  "version": "1.0.0",
+  "description": "Bot WhatsApp Multi-Device et Telegram - ÑĞĮĻJÃ_ÑĪJ",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js",
+    "start:wa": "node whatsapp/connect.js",
+    "start:tg": "node telegram/bot.js"
+  },
+  "keywords": ["whatsapp", "telegram", "baileys", "bot", "multi-device", "AI"],
+  "author": "ÑĞĮĻJÃ_ÑĪJ",
+  "license": "ISC",
+  "dependencies": {
+    "@adiwajshing/baileys": "^4.4.0",
+    "axios": "^1.13.2",
+    "fs-extra": "^11.3.3",
+    "node-fetch": "^3.3.2",
+    "node-telegram-bot-api": "^0.67.0",
+    "qrcode-terminal": "^0.12.0",
+    "pino": "^8.18.0"
+  }
+}
