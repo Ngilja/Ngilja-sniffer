@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Carte de Saint-Valentin 💖</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>💌 Crée ta carte de Saint-Valentin 💌</h1>
+
+  <select id="genderChoice">
+    <option value="fille">Fille → Son mec</option>
+    <option value="garcon">Garçon → Sa meuf</option>
+  </select>
+
+  <input type="text" id="name" placeholder="Ton prénom">
+  <input type="file" id="photo">
+  <textarea id="feeling" placeholder="Ce que tu ressens..."></textarea>
+  <button onclick="showCard()">Envoyer 💖</button>
+
+  <div class="card" id="card" style="display:none;">
+    <h2 id="cardTitle"></h2>
+    <img id="cardPhoto" src="" alt="">
+    <p id="cardFeeling"></p>
+    <div class="hearts"></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
