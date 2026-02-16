@@ -641,4 +641,44 @@ process.on('unhandledRejection', (error) => {
 });
 
 // Export pour les tests
-module.exports = { app, server, io };
+module.exports = { app, server, io };// ============================================
+// ROUTE POUR LE CODE DE PARRAGE
+// ============================================
+app.post('/api/pair', async (req, res) => {
+    const { phoneNumber } = req.body;
+    
+    if (!phoneNumber) {
+        return res.status(400).json({ error: 'Numéro de téléphone requis' });
+    }
+    
+    try {
+        // Nettoyer le numéro
+        let number = phoneNumber.replace(/[^0-9]/g, '');
+        
+        console.log(`📱 Demande de code pour: ${number}`);
+        
+        // Générer le code de pairage
+        if (!sock) {
+            return res.status(400).json({ error: 'Bot pas initialisé' });
+        }
+        
+        // Demander le code
+        const code = await sock.requestPairingCode(number);
+        
+        // Formater le code (XXXX-XXXX)
+        const formattedCode = code.match(/.{1,4}/g).join('-');
+        
+        res.json({ 
+            success: true, 
+            code: formattedCode,
+            message: 'Code généré avec succès'
+        });
+        
+    } catch (error) {
+        console.error('❌ Erreur pairage:', error);
+        res.status(500).json({ 
+            error: 'Erreur lors de la génération du code',
+            details: error.message 
+        });
+    }
+});
