@@ -7,3 +7,5 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 20.11.0
+      - key: USE_YARN
+        value: false
