@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELEXTERCORES FLEX - Dashboard WhatsApp Bot</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- ======================================== -->
+        <!-- HEADER AVEC LE NOM DU BOT                -->
+        <!-- ======================================== -->
+        <header>
+            <div class="logo-container">
+                <div class="bot-avatar" id="botAvatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>⚡ ELEXTERCORES <span class="flex">FLEX</span></h1>
+                    <small>Bot WhatsApp par <span id="ownerName">ÑĞĮĻJÃ_ÑĪJ</span></small>
+                </div>
+            </div>
+            <div class="status-container">
+                <div class="status" id="statusIndicator">
+                    <span class="status-dot disconnected"></span>
+                    <span id="statusText">Déconnecté</span>
+                </div>
+                <div class="version">v<span id="versionText">1.0.0</span></div>
+            </div>
+        </header>
+
+        <!-- ======================================== -->
+        <!-- SECTION PRINCIPALE                        -->
+        <!-- ======================================== -->
+        <main>
+            <!-- SECTION QR CODE (affichée quand déconnecté) -->
+            <div class="qr-section" id="qrSection">
+                <div class="qr-card">
+                    <h2><i class="fas fa-qrcode"></i> Scanner le QR Code</h2>
+                    <div class="qr-container" id="qrContainer">
+                        <div class="qr-placeholder" id="qrPlaceholder">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Génération du QR code...</p>
+                        </div>
+                        <img id="qrCode" src="" alt="QR Code WhatsApp" style="display: none;">
+                    </div>
+                    <div class="qr-instructions">
+                        <p><i class="fas fa-phone"></i> 1. Ouvrez WhatsApp sur votre téléphone</p>
+                        <p><i class="fas fa-cog"></i> 2. Menu → Appareils connectés</p>
+                        <p><i class="fas fa-qrcode"></i> 3. Scannez ce QR code</p>
+                    </div>
+                    <div class="qr-footer">
+                        <p class="bot-name">🤖 <span id="qrBotName">ELEXTERCORES FLEX</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DASHBOARD (affiché quand connecté) -->
+            <div class="dashboard" id="dashboard" style="display: none;">
+                <!-- Barre d'information du bot -->
+                <div class="bot-info-bar">
+                    <div class="bot-info-item">
+                        <i class="fas fa-circle" style="color: #00FF00;"></i>
+                        <span id="botNumber">Chargement...</span>
+                    </div>
+                    <div class="bot-info-item">
+                        <i class="fas fa-user"></i>
+                        <span id="botOwner">ÑĞĮĻJÃ_ÑĪJ</span>
+                    </div>
+                    <div class="bot-info-item">
+                        <i class="fas fa-clock"></i>
+                        <span id="botUptime">0h 0m</span>
+                    </div>
+                </div>
+
+                <!-- Cartes de statistiques -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #FF0000, #8B0000);">
+                            <i class="fas fa-message"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalMessages">0</span>
+                            <span class="stat-label">Messages reçus</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #00FF00, #008000);">
+                            <i class="fas fa-terminal"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalCommands">0</span>
+                            <span class="stat-label">Commandes exécutées</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #FFA500, #FF8C00);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalGroups">0</span>
+                            <span class="stat-label">Groupes</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #FF0000, #00FF00);">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="botStatus">Actif</span>
+                            <span class="stat-label">Statut</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Commandes rapides -->
+                <div class="quick-commands">
+                    <h3><i class="fas fa-bolt"></i> Commandes Rapides</h3>
+                    <div class="command-buttons">
+                        <button class="cmd-btn" onclick="sendQuickCommand('.ping')" style="border-color: #FF0000;">
+                            <i class="fas fa-heart-pulse"></i> .ping
+                        </button>
+                        <button class="cmd-btn" onclick="sendQuickCommand('.alive')" style="border-color: #00FF00;">
+                            <i class="fas fa-check-circle"></i> .alive
+                        </button>
+                        <button class="cmd-btn" onclick="sendQuickCommand('.system')" style="border-color: #FFA500;">
+                            <i class="fas fa-server"></i> .system
+                        </button>
+                        <button class="cmd-btn" onclick="sendQuickCommand('.sessions')" style="border-color: #FF69B4;">
+                            <i class="fas fa-history"></i> .sessions
+                        </button>
+                        <button class="cmd-btn" onclick="sendQuickCommand('.help')" style="border-color: #4169E1;">
+                            <i class="fas fa-question-circle"></i> .help
+                        </button>
+                        <button class="cmd-btn" onclick="sendQuickCommand('.st')" style="border-color: #800080;">
+                            <i class="fas fa-gear"></i> .st
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Envoi de message -->
+                <div class="message-sender">
+                    <h3><i class="fas fa-paper-plane"></i> Envoyer un Message</h3>
+                    <div class="message-form">
+                        <div class="input-group">
+                            <input type="text" id="phoneNumber" placeholder="Numéro (ex: 33612345678)" class="form-input">
+                            <select id="messageType" class="form-select">
+                                <option value="individual">Message privé</option>
+                                <option value="group">Groupe</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <textarea id="messageText" placeholder="Votre message..." rows="3" class="form-input"></textarea>
+                            <button onclick="sendMessage()" class="send-btn" style="background: linear-gradient(135deg, #FF0000, #00FF00);">
+                                <i class="fas fa-send"></i> Envoyer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logs des messages -->
+                <div class="logs-section">
+                    <div class="logs-header">
+                        <h3><i class="fas fa-list"></i> Messages en direct</h3>
+                        <div class="logs-controls">
+                            <button onclick="clearLogs()" class="clear-btn">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button onclick="toggleLogs()" class="toggle-btn">
+                                <i class="fas fa-chevron-up" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-placeholder">
+                            <i class="fas fa-inbox"></i>
+                            <p>Aucun message pour le moment</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions du bot -->
+                <div class="bot-actions">
+                    <button class="action-btn danger" onclick="logoutBot()">
+                        <i class="fas fa-power-off"></i> Déconnecter le bot
+                    </button>
+                    <button class="action-btn" onclick="refreshStatus()">
+                        <i class="fas fa-sync-alt"></i> Actualiser
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p>© 2024 <span style="color: #FF0000;">ELEXTERCORES</span> <span style="color: #00FF00;">FLEX</span> - Créé par ÑĞĮĻJÃ_ÑĪJ avec ❤️</p>
+            <p class="footer-small">Version 1.0.0 - Tous droits réservés</p>
+        </footer>
+    </div>
+
+    <!-- Template pour les logs -->
+    <template id="logTemplate">
+        <div class="log-item">
+            <div class="log-time"></div>
+            <div class="log-content">
+                <div class="log-from"></div>
+                <div class="log-text"></div>
+            </div>
+        </div>
+    </template>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
