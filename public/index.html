@@ -1,4 +1,44 @@
-<!DOCTYPE html>
+<!-- SECTION CODE DE PARRAGE (à ajouter dans index.html) -->
+<div class="pairing-section">
+    <h2><i class="fas fa-key"></i> Connexion par Code</h2>
+    <div class="pairing-card">
+        <p>Entrez votre numéro WhatsApp pour recevoir un code</p>
+        <div class="input-group">
+            <input type="text" id="phoneNumberPair" placeholder="Ex: 33612345678" class="form-input">
+            <select id="countryCode" class="form-select">
+                <option value="33">France (+33)</option>
+                <option value="32">Belgique (+32)</option>
+                <option value="41">Suisse (+41)</option>
+                <option value="221">Sénégal (+221)</option>
+                <option value="225">Côte d'Ivoire (+225)</option>
+                <option value="227">Niger (+227)</option>
+                <option value="229">Bénin (+229)</option>
+                <option value="237">Cameroun (+237)</option>
+                <option value="242">Congo (+242)</option>
+                <option value="243">RDC (+243)</option>
+            </select>
+        </div>
+        <button onclick="requestPairingCode()" class="pairing-btn" style="background: linear-gradient(135deg, #FF0000, #00FF00);">
+            <i class="fas fa-mobile-alt"></i> Obtenir le code
+        </button>
+        <div id="pairingCodeDisplay" class="pairing-code" style="display: none;">
+            <h3>Votre code :</h3>
+            <div class="code-box" id="codeBox">------</div>
+            <p>Entrez ce code dans WhatsApp :</p>
+            <p class="instructions">WhatsApp → Appareils connectés → Connecter avec code</p>
+        </div>
+    </div>
+</div>
+
+<!-- Ajoutez aussi une bascule entre QR et Code -->
+<div class="connection-toggle">
+    <button id="showQrBtn" class="toggle-connection active" onclick="showQrMode()">
+        <i class="fas fa-qrcode"></i> QR Code
+    </button>
+    <button id="showPairBtn" class="toggle-connection" onclick="showPairMode()">
+        <i class="fas fa-key"></i> Code
+    </button>
+</div><!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
