@@ -6,4 +6,8 @@ services:
     startCommand: npm start
     envVars:
       - key: NODE_VERSION
-        value: 18.18.0
+        value: 20.11.0
+      - key: BOT_NAME
+        value: ELEXTERCORES FLEX
+      - key: BOT_OWNER
+        value: NĞỊJẢ_NĨJ
