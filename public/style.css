@@ -790,4 +790,86 @@ footer p {
 
 ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(135deg, var(--red-dark), var(--green-dark));
+}/* ============================================
+   STYLES POUR LE CODE DE PARRAGE (AJOUTER ICI)
+   ============================================ */
+.pairing-section {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.pairing-card {
+    text-align: center;
+}
+
+.pairing-btn {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: 600;
+    margin: 20px 0;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.pairing-btn:hover {
+    transform: translateY(-2px);
+}
+
+.pairing-code {
+    background: linear-gradient(135deg, rgba(255,0,0,0.1), rgba(0,255,0,0.1));
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+.code-box {
+    background: #1e1e1e;
+    color: #00FF00;
+    font-size: 32px;
+    font-weight: bold;
+    letter-spacing: 5px;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 15px 0;
+    text-align: center;
+    font-family: monospace;
+}
+
+.connection-toggle {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.toggle-connection {
+    padding: 10px 20px;
+    border: 2px solid #FF0000;
+    background: transparent;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    flex: 1;
+    max-width: 200px;
+}
+
+.toggle-connection.active {
+    background: linear-gradient(135deg, #FF0000, #00FF00);
+    color: white;
+    border: none;
+}
+
+.instructions {
+    font-size: 14px;
+    color: #666;
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
 }
