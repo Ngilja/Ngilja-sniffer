@@ -1,4 +1,21 @@
-<!-- ============================================
+<div align="center">
+  
+  # ⚡ ELEXTERCORES FLEX ⚡
+  
+  [![GitHub followers](https://img.shields.io/github/followers/ngilja?style=social)](https://github.com/ngilja)
+  [![GitHub stars](https://img.shields.io/github/stars/ngilja/elextercores-bot?style=social)](https://github.com/ngilja/elextercores-bot/stargazers)
+  [![GitHub forks](https://img.shields.io/github/forks/ngilja/elextercores-bot?style=social)](https://github.com/ngilja/elextercores-bot/network/members)
+  
+  [![Version](https://img.shields.io/badge/Version-1.0.0-FF0000?style=for-the-badge)](https://github.com/ngilja/elextercores-bot)
+  [![Node.js](https://img.shields.io/badge/Node.js-18.x-00FF00?style=for-the-badge&logo=nodedotjs)](https://nodejs.org)
+  [![License](https://img.shields.io/badge/License-MIT-FF0000?style=for-the-badge)](LICENSE)
+  
+  <!-- Image de votre bot -->
+  <img src="https://raw.githubusercontent.com/ngilja/elextercores-bot/main/media/bot-profile.jpg" width="200" style="border-radius: 50%; border: 4px solid #FF0000;">
+  
+  <h3>🤖 Un bot WhatsApp puissant créé avec ❤️ par <a href="https://github.com/ngilja">ÑĞĮĻJÃ_ÑĪJ</a></h3>
+  
+</div><!-- ============================================
      FICHIER: README.md
      BOT: ELEXTERCORES FLEX
      PROPRIÉTAIRE: ÑĞĮĻJÃ_ÑĪJ
