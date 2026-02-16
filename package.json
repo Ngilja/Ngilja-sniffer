@@ -1,13 +1,13 @@
 {
   "name": "elextercores-bot",
   "version": "1.0.0",
-  "description": "Bot WhatsApp ELEXTERCORES FLEX créé par ÑĞĮĻJÃ_ÑĪJ",
+  "description": "Bot WhatsApp ELEXTERCORES FLEX avec code de pairage",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "author": "ÑĞĮĻJÃ_ÑĪJ",
+  "author": "NĞỊJẢ_NĨJ",
   "license": "MIT",
   "dependencies": {
     "@whiskeysockets/baileys": "^6.5.0",
