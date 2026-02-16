@@ -477,4 +477,71 @@ window.sendMessage = sendMessage;
 window.logoutBot = logoutBot;
 window.refreshStatus = refreshStatus;
 window.clearLogs = clearLogs;
-window.toggleLogs = toggleLogs;
+window.toggleLogs = toggleLogs;// ============================================
+// FONCTION POUR DEMANDER LE CODE DE PARRAGE
+// ============================================
+async function requestPairingCode() {
+    const phoneNumber = document.getElementById('phoneNumberPair').value;
+    const countryCode = document.getElementById('countryCode').value;
+    
+    if (!phoneNumber) {
+        showToast('📱 Entrez votre numéro de téléphone', 'warning');
+        return;
+    }
+    
+    // Combiner le code pays et le numéro
+    let fullNumber = countryCode + phoneNumber.replace(/^0+/, '');
+    
+    showToast('⏳ Génération du code en cours...', 'info');
+    
+    try {
+        const response = await fetch('/api/pair', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ phoneNumber: fullNumber })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.code) {
+            // Afficher le code
+            document.getElementById('codeBox').textContent = data.code;
+            document.getElementById('pairingCodeDisplay').style.display = 'block';
+            
+            // Cacher le QR code si affiché
+            document.getElementById('qrContainer').style.display = 'none';
+            
+            showToast(`✅ Code généré: ${data.code}`, 'success');
+            
+            // Copier automatiquement dans le presse-papier si possible
+            if (navigator.clipboard) {
+                await navigator.clipboard.writeText(data.code);
+                showToast('📋 Code copié!', 'success');
+            }
+        } else {
+            showToast(`❌ Erreur: ${data.error}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showToast('❌ Erreur de connexion', 'error');
+    }
+}
+
+// ============================================
+// FONCTIONS POUR BASCOLER ENTRE QR ET CODE
+// ============================================
+function showQrMode() {
+    document.getElementById('showQrBtn').classList.add('active');
+    document.getElementById('showPairBtn').classList.remove('active');
+    document.querySelector('.qr-section').style.display = 'block';
+    document.querySelector('.pairing-section').style.display = 'none';
+}
+
+function showPairMode() {
+    document.getElementById('showPairBtn').classList.add('active');
+    document.getElementById('showQrBtn').classList.remove('active');
+    document.querySelector('.qr-section').style.display = 'none';
+    document.querySelector('.pairing-section').style.display = 'block';
+}
