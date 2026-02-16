@@ -681,4 +681,310 @@ app.post('/api/pair', async (req, res) => {
             details: error.message 
         });
     }
+});        // ============================================
+        // 14. EXÉCUTION DES COMMANDES
+        // ============================================
+        async function executeCommand(command, args, message, chatId, isGroup) {
+            const jid = chatId;
+            const sender = message.key.participant || message.key.remoteJid;
+            
+            // Dictionnaire des commandes
+            const commands = {
+                // ========================================
+                // COMMANDES DE BASE
+                // ========================================
+                'ping': async () => {
+                    const start = Date.now();
+                    await sock.sendMessage(jid, { text: '🏓 Pong!' });
+                    const end = Date.now();
+                    await sock.sendMessage(jid, { 
+                        text: `⚡ Latence: ${end - start}ms` 
+                    });
+                },
+
+                'alive': async () => {
+                    const uptime = process.uptime();
+                    const hours = Math.floor(uptime / 3600);
+                    const minutes = Math.floor((uptime % 3600) / 60);
+                    
+                    await sock.sendMessage(jid, { 
+                        text: config.formatMessage('alive', {
+                            uptime: `${hours}h ${minutes}m`,
+                            ram: Math.round(process.memoryUsage().heapUsed / 1024 / 1024)
+                        })
+                    });
+                },
+
+                'system': async () => {
+                    const uptime = process.uptime();
+                    const hours = Math.floor(uptime / 3600);
+                    const minutes = Math.floor((uptime % 3600) / 60);
+                    const seconds = Math.floor(uptime % 60);
+                    
+                    await sock.sendMessage(jid, { 
+                        text: `📊 *SYSTÈME - ${config.bot.name}*
+
+👤 *Propriétaire:* ${config.bot.owner}
+🖥️ *Platforme:* ${process.platform}
+📦 *Node.js:* ${process.version}
+⏰ *Uptime:* ${hours}h ${minutes}m ${seconds}s
+💾 *RAM:* ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)} MB
+🌐 *Session:* ${connected ? '✅ Active' : '❌ Inactive'}
+
+_${new Date().toLocaleString('fr-FR')}_`
+                    });
+                },
+
+                'sessions': async () => {
+                    const sessions = fs.existsSync('auth_info') ? 
+                        fs.readdirSync('auth_info').filter(f => f.endsWith('.json')).length : 0;
+                    
+                    let sessionInfo = { number: 'Inconnu', name: 'Inconnu' };
+                    if (fs.existsSync('session.json')) {
+                        try {
+                            sessionInfo = JSON.parse(fs.readFileSync('session.json', 'utf8'));
+                        } catch (e) {}
+                    }
+                    
+                    await sock.sendMessage(jid, { 
+                        text: `📱 *SESSIONS - ${config.bot.name}*
+
+━━━━━━━━━━━━━━
+👤 *Propriétaire:* ${config.bot.owner}
+📊 *Statut:* ${connected ? '✅ Connecté' : '❌ Déconnecté'}
+🔢 *Numéro:* ${sessionInfo.number}
+📁 *Fichiers:* ${sessions}
+⏰ *Connecté le:* ${sessionInfo.connectedAt ? new Date(sessionInfo.connectedAt).toLocaleString('fr-FR') : 'Jamais'}
+
+━━━━━━━━━━━━━━
+💡 *Commandes:* .ping, .alive, .system, .help`
+                    });
+                },
+
+                'help': async () => {
+                    let helpText = `╭━━━━━━━━━━━━━━╮
+┃ 🤖 *${config.bot.name}* ┃
+╰━━━━━━━━━━━━━━╯
+
+👤 *Propriétaire:* ${config.bot.owner}
+⚡ *Version:* ${config.bot.version}
+
+━━━━━━━━━━━━━━
+*📋 COMMANDES DISPONIBLES*
+━━━━━━━━━━━━━━\n\n`;
+                    
+                    // Grouper par catégorie
+                    const categories = {};
+                    Object.keys(config.commands).forEach(cmd => {
+                        const cat = config.commands[cmd].category || 'general';
+                        if (!categories[cat]) categories[cat] = [];
+                        categories[cat].push(cmd);
+                    });
+                    
+                    for (let [cat, cmds] of Object.entries(categories)) {
+                        helpText += `*${cat.toUpperCase()}*\n`;
+                        cmds.forEach(cmd => {
+                            helpText += `  ${config.bot.prefix}${cmd} - ${config.commands[cmd].description}\n`;
+                        });
+                        helpText += '\n';
+                    }
+                    
+                    helpText += `━━━━━━━━━━━━━━\n_Pour plus d'aide: ${config.bot.prefix}help [commande]_`;
+                    
+                    await sock.sendMessage(jid, { text: helpText });
+                },
+
+                // ========================================
+                // COMMANDES DE GROUPE
+                // ========================================
+                'join': async () => {
+                    if (!isGroup) {
+                        await sock.sendMessage(jid, { 
+                            text: '❌ Cette commande ne peut être utilisée que dans un groupe' 
+                        });
+                        return;
+                    }
+                    
+                    if (args[0]) {
+                        try {
+                            await sock.groupAcceptInvite(args[0]);
+                            await sock.sendMessage(jid, { 
+                                text: '✅ Groupe rejoint avec succès!' 
+                            });
+                        } catch (e) {
+                            await sock.sendMessage(jid, { 
+                                text: '❌ Impossible de rejoindre le groupe. Vérifiez le lien.' 
+                            });
+                        }
+                    } else {
+                        await sock.sendMessage(jid, { 
+                            text: '❌ Utilisation: .join [lien du groupe]' 
+                        });
+                    }
+                },
+
+                'leave': async () => {
+                    if (!isGroup) {
+                        await sock.sendMessage(jid, { 
+                            text: '❌ Cette commande ne peut être utilisée que dans un groupe' 
+                        });
+                        return;
+                    }
+                    
+                    await sock.sendMessage(jid, { 
+                        text: '👋 Au revoir ! Je quitte le groupe...' 
+                    });
+                    setTimeout(async () => {
+                        await sock.groupLeave(jid);
+                    }, 2000);
+                },
+
+                // ========================================
+                // COMMANDES MÉDIA
+                // ========================================
+                'getdp': async () => {
+                    let target = args[0] || sender;
+                    target = target.replace(/[^0-9]/g, '') + '@s.whatsapp.net';
+                    
+                    try {
+                        const ppUrl = await sock.profilePictureUrl(target, 'image');
+                        await sock.sendMessage(jid, { 
+                            image: { url: ppUrl },
+                            caption: `📸 Photo de profil de @${target.split('@')[0]}`,
+                            mentions: [target]
+                        });
+                    } catch {
+                        await sock.sendMessage(jid, { 
+                            text: '❌ Pas de photo de profil trouvée ou utilisateur inexistant' 
+                        });
+                    }
+                },
+
+                'play': async () => {
+                    if (args.length === 0) {
+                        await sock.sendMessage(jid, { 
+                            text: '❌ Utilisation: .play [titre de la musique]' 
+                        });
+                        return;
+                    }
+                    
+                    const query = args.join(' ');
+                    await sock.sendMessage(jid, { 
+                        text: `🎵 Recherche de: "${query}"...\n\n⚠️ Fonctionnalité en développement. Bientôt disponible !` 
+                    });
+                },
+
+                'st': async () => {
+                    await sock.sendMessage(jid, { 
+                        text: `⚙️ *PARAMÈTRES - ${config.bot.name}*
+
+📱 *Nom:* ${config.bot.name}
+👤 *Propriétaire:* ${config.bot.owner}
+🔧 *Préfixe:* ${config.bot.prefix}
+🌐 *Langue:* ${config.settings.language}
+⚡ *Anti-spam:* ${config.settings.antiSpam ? '✅ Activé' : '❌ Désactivé'}
+
+_Paramètres modifiables via le dashboard web_` 
+                    });
+                },
+
+                // ========================================
+                // COMMANDES DE TEST
+                // ========================================
+                'test': async () => {
+                    await sock.sendMessage(jid, { 
+                        text: `✅ Bot fonctionnel !\n\n📱 ${config.bot.name}\n👤 ${config.bot.owner}` 
+                    });
+                }
+            };
+
+            // Exécuter la commande si elle existe
+            if (commands[command]) {
+                await commands[command]();
+            } else {
+                // Si la commande n'est pas dans la liste mais existe dans config
+                await sock.sendMessage(jid, { 
+                    text: `❌ Commande "${command}" non implémentée encore.` 
+                });
+            }
+        }
+
+    } catch (error) {
+        console.error('❌ Erreur fatale:', error);
+        console.log('🔄 Redémarrage dans 5 secondes...');
+        setTimeout(startBot, 5000);
+    }
+}
+
+// ============================================
+// 15. ROUTE POUR LE CODE DE PARRAGE (À AJOUTER AUSSI)
+// ============================================
+app.post('/api/pair', async (req, res) => {
+    const { phoneNumber } = req.body;
+    
+    if (!phoneNumber) {
+        return res.status(400).json({ error: 'Numéro de téléphone requis' });
+    }
+    
+    try {
+        // Nettoyer le numéro
+        let number = phoneNumber.replace(/[^0-9]/g, '');
+        
+        console.log(`📱 Demande de code pour: ${number}`);
+        
+        // Générer le code de pairage
+        if (!sock) {
+            return res.status(400).json({ error: 'Bot pas initialisé' });
+        }
+        
+        // Demander le code
+        const code = await sock.requestPairingCode(number);
+        
+        // Formater le code (XXXX-XXXX)
+        const formattedCode = code.match(/.{1,4}/g).join('-');
+        
+        res.json({ 
+            success: true, 
+            code: formattedCode,
+            message: 'Code généré avec succès'
+        });
+        
+    } catch (error) {
+        console.error('❌ Erreur pairage:', error);
+        res.status(500).json({ 
+            error: 'Erreur lors de la génération du code',
+            details: error.message 
+        });
+    }
 });
+
+// ============================================
+// 16. DÉMARRAGE DU SERVEUR
+// ============================================
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log('╔════════════════════════════════════╗');
+    console.log('║    SERVEUR WEB DÉMARRÉ            ║');
+    console.log('╠════════════════════════════════════╣');
+    console.log(`║  URL: http://localhost:${PORT}`);
+    console.log(`║  Bot: ${config.bot.name}`);
+    console.log(`║  Owner: ${config.bot.owner}`);
+    console.log('╚════════════════════════════════════╝');
+});
+
+// Démarrer le bot
+startBot();
+
+// ============================================
+// 17. GESTION DES ERREURS NON CAPTURÉES
+// ============================================
+process.on('uncaughtException', (error) => {
+    console.error('❌ Erreur non capturée:', error);
+});
+
+process.on('unhandledRejection', (error) => {
+    console.error('❌ Promesse rejetée non gérée:', error);
+});
+
+// Export pour les tests
+module.exports = { app, server, io };
