@@ -1,0 +1,43 @@
+# ============================================
+# FICHIER: .gitignore
+# ============================================
+
+# Dépendances
+node_modules/
+
+# Fichiers de configuration sensibles
+.env
+.env.local
+.env.production
+
+# Dossiers de session WhatsApp (TRÈS IMPORTANT)
+auth_info/
+session.json
+*.creds.json
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# Dossier media (sauf si vous voulez versionner vos images)
+media/
+!media/README.md
+
+# Fichiers temporaires
+tmp/
+temp/
+*.tmp
+
+# IDE
+.vscode/
+.idea/
+*.swo
+*.swp
