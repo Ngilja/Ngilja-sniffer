@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - ELEXTERCORES FLEX</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        /* Header */
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo h1 {
+            font-size: 28px;
+            background: linear-gradient(135deg, #FF0000, #00FF00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo small {
+            color: #666;
+            font-size: 14px;
+        }
+        .status-badge {
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+        }
+        .status-badge.online {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        .status-badge.offline {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        /* Grille principale */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card h3 {
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+        /* Stats */
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .stat-label {
+            color: #666;
+            font-weight: 500;
+        }
+        .stat-value {
+            font-weight: bold;
+            color: #FF0000;
+        }
+        /* Commandes */
+        .command-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .command-item {
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .command-name {
+            font-weight: 600;
+            color: #00FF00;
+        }
+        .command-desc {
+            color: #666;
+            font-size: 12px;
+        }
+        .command-category {
+            background: #e0e0e0;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+        /* Utilisateurs connectés */
+        .user-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .user-item {
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF0000, #00FF00);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .user-info h4 {
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+        .user-info p {
+            font-size: 12px;
+            color: #666;
+        }
+        .user-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-left: auto;
+        }
+        .user-status.online {
+            background: #28a745;
+        }
+        .user-status.offline {
+            background: #dc3545;
+        }
+        /* Formulaires */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #FF0000;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #FF0000, #00FF00);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+        /* Sections */
+        .section-title {
+            margin: 30px 0 20px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        /* Logs */
+        .logs-container {
+            background: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            color: #00FF00;
+        }
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid #333;
+        }
+        .log-time {
+            color: #FF0000;
+            margin-right: 10px;
+        }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .tab.active {
+            background: linear-gradient(135deg, #FF0000, #00FF00);
+            color: white;
+            border-color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <h1>⚡ ELEXTERCORES FLEX</h1>
+                <small>Panneau d'administration par NĞỊJẢ_NĨJ</small>
+            </div>
+            <div class="status-badge online" id="statusBadge">
+                <span id="statusText">🟢 En ligne</span>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('dashboard')">📊 Dashboard</div>
+            <div class="tab" onclick="showTab('commands')">⚡ Commandes</div>
+            <div class="tab" onclick="showTab('users')">👥 Utilisateurs</div>
+            <div class="tab" onclick="showTab('groups')">👥 Groupes</div>
+            <div class="tab" onclick="showTab('logs')">📋 Logs</div>
+            <div class="tab" onclick="showTab('settings')">⚙️ Paramètres</div>
+        </div>
+
+        <!-- Tab: Dashboard -->
+        <div id="tab-dashboard" class="tab-content active">
+            <h2 class="section-title">📊 Vue d'ensemble</h2>
+            <div class="dashboard-grid">
+                <!-- Stats card -->
+                <div class="card">
+                    <h3><span style="color: #FF0000;">📈</span> Statistiques</h3>
+                    <div class="stat-item">
+                        <span class="stat-label">📱 Numéro connecté</span>
+                        <span class="stat-value" id="botNumber">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">⏱️ Uptime</span>
+                        <span class="stat-value" id="uptime">0h 0m</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">💾 RAM utilisée</span>
+                        <span class="stat-value" id="ramUsed">0 MB</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">📨 Messages reçus</span>
+                        <span class="stat-value" id="totalMessages">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">⚡ Commandes exécutées</span>
+                        <span class="stat-value" id="totalCommands">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">👥 Groupes</span>
+                        <span class="stat-value" id="totalGroups">0</span>
+                    </div>
+                </div>
+
+                <!-- Actions rapides -->
+                <div class="card">
+                    <h3><span style="color: #00FF00;">⚡</span> Actions rapides</h3>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <button class="btn btn-primary" onclick="sendCommand('.ping')">🏓 Tester connexion</button>
+                        <button class="btn btn-primary" onclick="sendCommand('.alive')">❤️ Vérifier statut</button>
+                        <button class="btn btn-primary" onclick="sendCommand('.system')">📊 Infos système</button>
+                        <button class="btn btn-primary" onclick="sendCommand('.sessions')">📱 Voir sessions</button>
+                        <button class="btn btn-danger" onclick="logoutBot()">🔌 Déconnecter le bot</button>
+                        <button class="btn btn-success" onclick="refreshData()">🔄 Rafraîchir</button>
+                    </div>
+                </div>
+
+                <!-- Envoi de message -->
+                <div class="card">
+                    <h3><span style="color: #FFA500;">📤</span> Envoyer un message</h3>
+                    <div class="form-group">
+                        <label>Numéro (ex: 243XXXXXXXXX)</label>
+                        <input type="text" id="sendNumber" class="form-control" placeholder="Numéro WhatsApp">
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea id="sendMessage" class="form-control" rows="3" placeholder="Votre message..."></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="sendMessage()" style="width: 100%;">Envoyer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Commandes -->
+        <div id="tab-commands" class="tab-content">
+            <h2 class="section-title">⚡ Gestion des commandes</h2>
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>📋 Commandes disponibles</h3>
+                    <div class="command-list" id="commandList">
+                        <!-- Rempli par JS -->
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>➕ Ajouter une commande</h3>
+                    <div class="form-group">
+                        <label>Nom de la commande</label>
+                        <input type="text" id="newCmdName" class="form-control" placeholder="ex: .hello">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" id="newCmdDesc" class="form-control" placeholder="Description de la commande">
+                    </div>
+                    <div class="form-group">
+                        <label>Catégorie</label>
+                        <select id="newCmdCategory" class="form-control">
+                            <option value="general">Général</option>
+                            <option value="group">Groupe</option>
+                            <option value="media">Média</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-success" onclick="addCommand()">Ajouter</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Utilisateurs -->
+        <div id="tab-users" class="tab-content">
+            <h2 class="section-title">👥 Utilisateurs connectés</h2>
+            <div class="card">
+                <div class="user-list" id="userList">
+                    <!-- Rempli par JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Groupes -->
+        <div id="tab-groups" class="tab-content">
+            <h2 class="section-title">👥 Groupes WhatsApp</h2>
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>📋 Groupes du bot</h3>
+                    <div id="groupList"></div>
+                </div>
+                <div class="card">
+                    <h3>➕ Rejoindre un groupe</h3>
+                    <div class="form-group">
+                        <label>Lien d'invitation</label>
+                        <input type="text" id="groupInviteLink" class="form-control" placeholder="https://chat.whatsapp.com/...">
+                    </div>
+                    <button class="btn btn-primary" onclick="joinGroup()">Rejoindre</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Logs -->
+        <div id="tab-logs" class="tab-content">
+            <h2 class="section-title">📋 Logs en direct</h2>
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                    <h3>Activité récente</h3>
+                    <div>
+                        <button class="btn btn-primary" onclick="clearLogs()" style="margin-right: 5px;">Effacer</button>
+                        <button class="btn btn-success" onclick="toggleLiveLogs()">⏸️ Pause</button>
+                    </div>
+                </div>
+                <div class="logs-container" id="logsContainer">
+                    <div class="log-entry">
+                        <span class="log-time">[12:00:00]</span>
+                        <span>Bot démarré avec succès</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Paramètres -->
+        <div id="tab-settings" class="tab-content">
+            <h2 class="section-title">⚙️ Configuration</h2>
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>🤖 Configuration du bot</h3>
+                    <div class="form-group">
+                        <label>Nom du bot</label>
+                        <input type="text" id="configBotName" class="form-control" value="ELEXTERCORES FLEX">
+                    </div>
+                    <div class="form-group">
+                        <label>Préfixe des commandes</label>
+                        <input type="text" id="configPrefix" class="form-control" value="." maxlength="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Langue</label>
+                        <select id="configLang" class="form-control">
+                            <option value="fr">Français</option>
+                            <option value="en">English</option>
+                            <option value="es">Español</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="configAntiSpam" checked> Activer l'anti-spam
+                        </label>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveSettings()">Sauvegarder</button>
+                </div>
+                <div class="card">
+                    <h3>🎨 Personnalisation</h3>
+                    <div class="form-group">
+                        <label>Couleur principale (rouge)</label>
+                        <input type="color" id="colorPrimary" class="form-control" value="#FF0000">
+                    </div>
+                    <div class="form-group">
+                        <label>Couleur secondaire (vert)</label>
+                        <input type="color" id="colorSecondary" class="form-control" value="#00FF00">
+                    </div>
+                    <button class="btn btn-primary" onclick="saveColors()">Appliquer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let liveLogs = true;
+        let messageCount = 0;
+        let commandCount = 0;
+        let groupCount = 0;
+
+        // Connexion Socket.IO
+        socket.on('connect', () => {
+            addLog('✅ Connecté au serveur', 'success');
+        });
+
+        socket.on('disconnect', () => {
+            addLog('❌ Déconnecté du serveur', 'error');
+            document.getElementById('statusBadge').className = 'status-badge offline';
+            document.getElementById('statusText').innerHTML = '🔴 Hors ligne';
+        });
+
+        socket.on('connected', (data) => {
+            document.getElementById('botNumber').textContent = data.number || 'Inconnu';
+            document.getElementById('statusBadge').className = 'status-badge online';
+            document.getElementById('statusText').innerHTML = '🟢 En ligne';
+            addLog(`✅ Bot connecté: ${data.number}`, 'success');
+        });
+
+        socket.on('newMessage', (msg) => {
+            messageCount++;
+            document.getElementById('totalMessages').textContent = messageCount;
+            addLog(`📨 ${msg.from}: ${msg.text}`, 'info');
+        });
+
+        socket.on('commandExecuted', (data) => {
+            commandCount++;
+            document.getElementById('totalCommands').textContent = commandCount;
+            addLog(`⚡ Commande .${data.command} exécutée`, 'success');
+        });
+
+        socket.on('groupUpdate', (data) => {
+            groupCount++;
+            document.getElementById('totalGroups').textContent = groupCount;
+            addLog(`👥 Mise à jour groupe: ${data.action}`, 'warning');
+        });
+
+        // Fonctions
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        function addLog(message, type = 'info') {
+            if (!liveLogs) return;
+            const logs = document.getElementById('logsContainer');
+            const time = new Date().toLocaleTimeString('fr-FR');
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `<span class="log-time">[${time}]</span> <span>${message}</span>`;
+            logs.appendChild(logEntry);
+            logs.scrollTop = logs.scrollHeight;
+        }
+
+        function toggleLiveLogs() {
+            liveLogs = !liveLogs;
+            event.target.innerHTML = liveLogs ? '⏸️ Pause' : '▶️ Reprendre';
+        }
+
+        function clearLogs() {
+            document.getElementById('logsContainer').innerHTML = '';
+            addLog('🧹 Logs effacés', 'info');
+        }
+
+        async function sendCommand(cmd) {
+            const number = document.getElementById('sendNumber').value;
+            if (!number) {
+                alert('Veuillez entrer un numéro');
+                return;
+            }
+            try {
+                const res = await fetch('/api/send-message', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({to: number, message: cmd})
+                });
+                if (res.ok) {
+                    addLog(`📤 Commande envoyée: ${cmd}`, 'success');
+                }
+            } catch (err) {
+                addLog(`❌ Erreur: ${err.message}`, 'error');
+            }
+        }
+
+        async function sendMessage() {
+            const number = document.getElementById('sendNumber').value;
+            const message = document.getElementById('sendMessage').value;
+            if (!number || !message) {
+                alert('Veuillez remplir tous les champs');
+                return;
+            }
+            try {
+                const res = await fetch('/api/send-message', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({to: number, message: message})
+                });
+                if (res.ok) {
+                    addLog(`📤 Message envoyé à ${number}`, 'success');
+                    document.getElementById('sendMessage').value = '';
+                }
+            } catch (err) {
+                addLog(`❌ Erreur: ${err.message}`, 'error');
+            }
+        }
+
+        async function logoutBot() {
+            if (confirm('⚠️ Déconnecter le bot ?')) {
+                try {
+                    await fetch('/api/logout', {method: 'POST'});
+                    addLog('🔌 Bot déconnecté', 'warning');
+                } catch (err) {
+                    addLog(`❌ Erreur: ${err.message}`, 'error');
+                }
+            }
+        }
+
+        async function refreshData() {
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                document.getElementById('botNumber').textContent = data.number || '-';
+                addLog('🔄 Données rafraîchies', 'info');
+            } catch (err) {
+                addLog(`❌ Erreur: ${err.message}`, 'error');
+            }
+        }
+
+        // Charger les commandes
+        async function loadCommands() {
+            try {
+                const res = await fetch('/api/commands');
+                const data = await res.json();
+                const commandList = document.getElementById('commandList');
+                commandList.innerHTML = '';
+                Object.keys(data.commands).forEach(cmd => {
+                    const cmdData = data.commands[cmd];
+                    commandList.innerHTML += `
+                        <div class="command-item">
+                            <div>
+                                <span class="command-name">${data.prefix}${cmd}</span>
+                                <div class="command-desc">${cmdData.description}</div>
+                            </div>
+                            <span class="command-category">${cmdData.category}</span>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                console.error('Erreur chargement commandes:', err);
+            }
+        }
+
+        // Initialisation
+        window.onload = () => {
+            loadCommands();
+            refreshData();
+            startUptimeCounter();
+        };
+
+        // Compteur uptime
+        function startUptimeCounter() {
+            const start = Date.now();
+            setInterval(() => {
+                const uptime = Math.floor((Date.now() - start) / 1000);
+                const hours = Math.floor(uptime / 3600);
+                const minutes = Math.floor((uptime % 3600) / 60);
+                document.getElementById('uptime').textContent = `${hours}h ${minutes}m`;
+                
+                // RAM (simulée)
+                const ram = Math.floor(Math.random() * 100) + 50;
+                document.getElementById('ramUsed').textContent = `${ram} MB`;
+            }, 1000);
+        }
+
+        // Fonctions supplémentaires
+        function addCommand() {
+            alert('Fonctionnalité à implémenter avec le backend');
+        }
+
+        function joinGroup() {
+            const link = document.getElementById('groupInviteLink').value;
+            if (link) sendCommand(`.join ${link}`);
+        }
+
+        function saveSettings() {
+            alert('Paramètres sauvegardés (simulation)');
+        }
+
+        function saveColors() {
+            alert('Couleurs appliquées (simulation)');
+        }
+    </script>
+</body>
+</html>
