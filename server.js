@@ -987,4 +987,9 @@ process.on('unhandledRejection', (error) => {
 });
 
 // Export pour les tests
-module.exports = { app, server, io };
+module.exports = { app, server, io };// ============================================
+// ROUTE POUR LE PANEL ADMIN
+// ============================================
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin-panel.html'));
+});
