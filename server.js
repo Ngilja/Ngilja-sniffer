@@ -1,707 +1,145 @@
 // ============================================
-// FICHIER: server.js
-// BOT: ELEXTERCORES FLEX
-// PROPRIÉTAIRE: ÑĞĮĻJÃ_ÑĪJ
-// VERSION: 1.0.0
+// FICHIER: server.js (VERSION STABLE TERMUX)
 // ============================================
 
-// ============================================
-// 1. IMPORT DES MODULES
-// ============================================
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
-const qrcode = require('qrcode');
-const path = require('path');
-const fs = require('fs');
-const pino = require('pino');
-require('dotenv').config();
+const express = require('express')
+const http = require('http')
+const { Server } = require('socket.io')
+const { 
+    default: makeWASocket, 
+    useMultiFileAuthState, 
+    DisconnectReason 
+} = require('@whiskeysockets/baileys')
+const qrcode = require('qrcode')
+const path = require('path')
+const fs = require('fs')
+const pino = require('pino')
+require('dotenv').config()
 
-// ============================================
-// 2. IMPORT DE LA CONFIGURATION
-// ============================================
-const config = require('./config');
+const config = require('./config')
 
-// ============================================
-// 3. INITIALISATION DE L'APPLICATION
-// ============================================
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
+const app = express()
+const server = http.createServer(app)
+const io = new Server(server)
 
-// Variables globales
-let sock = null;
-let connected = false;
-let reconnectAttempts = 0;
-const MAX_RECONNECT_ATTEMPTS = config.advanced.maxReconnectAttempts;
+let sock = null
+let connected = false
 
-// ============================================
-// 4. CONFIGURATION EXPRESS
-// ============================================
-app.use(express.static('public'));
-app.use(express.json());
+app.use(express.static('public'))
+app.use(express.json())
 
-// ============================================
-// 5. ROUTE PRINCIPALE
-// ============================================
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+    res.sendFile(path.join(__dirname, 'public', 'index.html'))
+})
 
-// ============================================
-// 6. ROUTES API
-// ============================================
-
-// Route pour vérifier le statut
 app.get('/api/status', (req, res) => {
     res.json({
-        connected: connected,
+        connected,
         botName: config.bot.name,
-        owner: config.bot.owner,
-        version: config.bot.version,
-        number: sock?.user?.id?.split(':')[0] || null,
-        uptime: process.uptime(),
-        color: config.colors.primary
-    });
-});
+        number: sock?.user?.id?.split(':')[0] || null
+    })
+})
 
-// Route pour envoyer un message
-app.post('/api/send-message', async (req, res) => {
-    const { to, message } = req.body;
+/* ============================================
+   FONCTION PRINCIPALE BOT
+============================================ */
 
-    if (!sock || !connected) {
-        return res.status(400).json({ 
-            error: 'Bot non connecté',
-            botName: config.bot.name
-        });
-    }
-
-    try {
-        let jid = to.includes('@') ? to : to + '@s.whatsapp.net';
-        await sock.sendMessage(jid, { text: message });
-        res.json({ 
-            success: true,
-            message: 'Message envoyé avec succès'
-        });
-    } catch (error) {
-        res.status(500).json({ 
-            error: error.message,
-            botName: config.bot.name
-        });
-    }
-});
-
-// Route pour déconnecter le bot
-app.post('/api/logout', async (req, res) => {
-    if (sock) {
-        try {
-            await sock.logout();
-            connected = false;
-            res.json({ 
-                success: true,
-                message: 'Bot déconnecté avec succès'
-            });
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
-    } else {
-        res.status(400).json({ error: 'Bot non connecté' });
-    }
-});
-
-// Route pour obtenir la photo de profil
-app.get('/api/profile-pic', (req, res) => {
-    const profilePicPath = path.join(__dirname, config.paths.profilePic);
-    if (fs.existsSync(profilePicPath)) {
-        res.sendFile(profilePicPath);
-    } else {
-        res.status(404).json({ error: 'Photo de profil non trouvée' });
-    }
-});
-
-// Route pour obtenir les commandes
-app.get('/api/commands', (req, res) => {
-    res.json({
-        botName: config.bot.name,
-        commands: config.commands,
-        prefix: config.bot.prefix
-    });
-});
-
-// ============================================
-// ROUTE POUR LE CODE DE PARRAGE - VERSION AMÉLIORÉE
-// ============================================
-app.post('/api/pair', async (req, res) => {
-    const { phoneNumber } = req.body;
-
-    if (!phoneNumber) {
-        return res.status(400).json({ 
-            success: false,
-            error: 'Numéro de téléphone requis' 
-        });
-    }
-
-    try {
-        // Nettoyer le numéro (garde uniquement les chiffres)
-        let number = phoneNumber.replace(/\D/g, '');
-        
-        // Ajouter le code pays RDC (+243) si nécessaire
-        if (!number.startsWith('243')) {
-            number = '243' + number.replace(/^0+/, '');
-        }
-
-        console.log(`📱 Demande de code pour: ${number}`);
-
-        // Vérifier si le bot est connecté
-        if (!sock) {
-            return res.status(400).json({ 
-                success: false,
-                error: 'Bot non connecté. Veuillez d\'abord scanner le QR code.' 
-            });
-        }
-
-        // Ajouter un timeout de 30 secondes pour éviter l'attente infinie
-        const codePromise = sock.requestPairingCode(number);
-        const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('⏱️ Délai de 30 secondes dépassé')), 30000)
-        );
-
-        // Attendre le premier résultat
-        const code = await Promise.race([codePromise, timeoutPromise]);
-
-        // Vérifier que le code est valide
-        if (!code) {
-            throw new Error('Code non généré');
-        }
-
-        // Formater le code (XXXX-XXXX)
-        const codeStr = code.toString();
-        const formattedCode = codeStr.match(/.{1,4}/g)?.join('-') || codeStr;
-
-        console.log(`✅ Code généré avec succès: ${formattedCode}`);
-
-        // Renvoyer le code avec un message de validité
-        res.json({ 
-            success: true, 
-            code: formattedCode,
-            expiresIn: 60, // secondes
-            message: 'Code valable 60 secondes'
-        });
-
-    } catch (error) {
-        console.error('❌ Erreur détaillée pairage:', error);
-
-        // Message d'erreur plus précis pour l'utilisateur
-        let errorMessage = 'Erreur lors de la génération du code';
-        
-        if (error.message.includes('timeout') || error.message.includes('dépassé')) {
-            errorMessage = '⏱️ Délai dépassé. Réessayez.';
-        } else if (error.message.includes('not connected')) {
-            errorMessage = '❌ Bot non connecté à WhatsApp';
-        } else if (error.message.includes('rate')) {
-            errorMessage = '⏳ Trop de tentatives. Attendez 1 minute.';
-        }
-
-        res.status(500).json({ 
-            success: false,
-            error: errorMessage,
-            details: error.message
-        });
-    }
-});
-
-// ============================================
-// ROUTE POUR LE PANEL ADMIN
-// ============================================
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin-panel.html'));
-});
-
-// ============================================
-// 7. SOCKET.IO CONNEXION
-// ============================================
-io.on('connection', (socket) => {
-    console.log(`🌐 Nouveau client connecté au dashboard`);
-    socket.emit('status', {
-        connected: connected,
-        botName: config.bot.name,
-        owner: config.bot.owner
-    });
-    socket.on('disconnect', () => {
-        console.log('👋 Client déconnecté du dashboard');
-    });
-});
-
-// ============================================
-// 8. FONCTION PRINCIPALE DU BOT
-// ============================================
 async function startBot() {
-    try {
-        console.log('╔════════════════════════════════════╗');
-        console.log('║    DÉMARRAGE DU BOT WHATSAPP      ║');
-        console.log('╠════════════════════════════════════╣');
-        console.log(`║  Bot: ${config.bot.name}`);
-        console.log(`║  Propriétaire: ${config.bot.owner}`);
-        console.log(`║  Version: ${config.bot.version}`);
-        console.log('╚════════════════════════════════════╝');
+    console.log('🚀 DÉMARRAGE DU BOT...')
 
-        // ============================================
-        // NETTOYAGE DES ANCIENNES SESSIONS
-        // ============================================
-        const authFolder = './auth_info';
-        if (fs.existsSync(authFolder)) {
-            console.log('🧹 Nettoyage des anciennes sessions...');
-            fs.rmSync(authFolder, { recursive: true, force: true });
+    const { state, saveCreds } = await useMultiFileAuthState('auth_info')
+
+    sock = makeWASocket({
+        auth: state,
+        logger: pino({ level: 'silent' }),
+        browser: ['ELEXTERCORES FLEX', 'Chrome', '1.0.0'],
+        markOnlineOnConnect: true,
+        syncFullHistory: false
+    })
+
+    sock.ev.on('connection.update', async (update) => {
+        const { connection, lastDisconnect, qr } = update
+
+        // QR CODE
+        if (qr) {
+            console.log('📲 Scan ce QR avec WhatsApp')
+
+            const qrImage = await qrcode.toDataURL(qr)
+            io.emit('qr', qrImage)
+
+            qrcode.toString(qr, { type: 'terminal', small: true }, (err, url) => {
+                if (!err) console.log(url)
+            })
         }
 
-        // Charger l'état d'authentification
-        const { state, saveCreds } = await useMultiFileAuthState('auth_info');
-
-        // ============================================
-        // CRÉATION DE LA CONNEXION
-        // ============================================
-        sock = makeWASocket({
-            printQRInTerminal: true,
-            auth: state,
-            logger: pino({ level: 'debug' }),
-            browser: ['ELEXTERCORES FLEX', 'Chrome', '1.0.0'],
-            syncFullHistory: false,
-            markOnlineOnConnect: true,
-            generateHighQualityLinkPreview: false,
-            shouldSyncHistoryMessage: false
-        });
-
-        // ============================================
-        // 9. GESTION DES ÉVÉNEMENTS DE CONNEXION
-        // ============================================
-        sock.ev.on('connection.update', async (update) => {
-            const { connection, lastDisconnect, qr } = update;
-
-            // AFFICHAGE SYSTÉMATIQUE POUR DEBUG
-            console.log('🔄 Mise à jour connexion:', { 
-                connection: connection || 'N/A', 
-                hasQR: !!qr,
-                timestamp: new Date().toLocaleTimeString()
-            });
-
-            // QR CODE - Version améliorée avec plus de logs
-            if (qr) {
-                try {
-                    console.log('✅ QR CODE REÇU ! Génération en cours...');
-                    console.log('📱 Longueur du QR:', qr.length, 'caractères');
-                    
-                    // Générer le QR en base64 pour le frontend
-                    const qrImage = await qrcode.toDataURL(qr);
-                    console.log('✅ QR image générée, envoi au frontend...');
-                    
-                    // Émettre vers tous les clients connectés
-                    io.emit('qr', qrImage);
-                    console.log('📱 QR Code envoyé au dashboard');
-                    
-                    // Afficher aussi dans la console
-                    qrcode.toString(qr, { type: 'terminal', small: true }, (err, url) => {
-                        if (err) {
-                            console.error('❌ Erreur affichage QR dans console:', err);
-                        } else {
-                            console.log('📱 QR dans la console:');
-                            console.log(url);
-                        }
-                    });
-                    
-                    console.log('📱 QR Code généré - Scannez avec WhatsApp');
-                    reconnectAttempts = 0;
-                    
-                } catch (error) {
-                    console.error('❌ Erreur détaillée génération QR:', error);
-                    console.error('Stack trace:', error.stack);
-                }
-            }
-
-            // CONNEXION RÉUSSIE
-            if (connection === 'open') {
-                connected = true;
-                reconnectAttempts = 0;
-
-                console.log('✅ CONNEXION RÉUSSIE !');
-                console.log(`📱 Numéro: ${sock.user?.id?.split(':')[0]}`);
-
-                // Mettre à jour le profil
-                await updateBotProfile();
-
-                io.emit('connected', {
-                    number: sock.user?.id?.split(':')[0],
-                    name: config.bot.name,
-                    owner: config.bot.owner,
-                    version: config.bot.version
-                });
-
-                const sessionInfo = {
-                    number: sock.user?.id?.split(':')[0],
-                    name: config.bot.name,
-                    owner: config.bot.owner,
-                    connectedAt: new Date().toISOString()
-                };
-                fs.writeFileSync('session.json', JSON.stringify(sessionInfo, null, 2));
-            }
-
-            // DÉCONNEXION
-            if (connection === 'close') {
-                const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
-                connected = false;
-
-                console.log('❌ Connexion fermée');
-
-                if (shouldReconnect && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-                    reconnectAttempts++;
-                    console.log(`🔄 Tentative de reconnexion ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS}...`);
-                    io.emit('reconnecting', { attempt: reconnectAttempts, max: MAX_RECONNECT_ATTEMPTS });
-                    setTimeout(startBot, config.advanced.reconnectInterval);
-                } else {
-                    console.log('🛑 Arrêt des tentatives de reconnexion');
-                    io.emit('disconnected', { permanent: true });
-                }
-            }
-        });
-
-        // Sauvegarder les credentials
-        sock.ev.on('creds.update', saveCreds);
-
-        // ============================================
-        // 10. FONCTION DE MISE À JOUR DU PROFIL
-        // ============================================
-        async function updateBotProfile() {
-            try {
-                console.log('📸 Mise à jour du profil...');
-
-                if (config.bot.name) {
-                    await sock.updateProfileName(config.bot.name);
-                    console.log('✅ Nom du bot mis à jour:', config.bot.name);
-                }
-
-                const profilePicPath = path.join(__dirname, config.paths.profilePic);
-                if (fs.existsSync(profilePicPath)) {
-                    const profilePic = fs.readFileSync(profilePicPath);
-                    await sock.updateProfilePicture(sock.user.id, profilePic);
-                    console.log('✅ Photo de profil mise à jour');
-                } else {
-                    console.log('⚠️ Photo de profil non trouvée dans:', profilePicPath);
-                }
-
-                const status = `${config.bot.emoji} Bot de ${config.bot.owner} | v${config.bot.version}`;
-                await sock.updateProfileStatus(status);
-                console.log('✅ Status mis à jour:', status);
-
-            } catch (error) {
-                console.error('❌ Erreur mise à jour profil:', error);
-            }
+        // CONNECTÉ
+        if (connection === 'open') {
+            connected = true
+            console.log('✅ BOT CONNECTÉ !')
+            console.log('📱 Numéro:', sock.user?.id?.split(':')[0])
         }
 
-        // ============================================
-        // 11. GESTION DES MESSAGES ENTRANTS
-        // ============================================
-        sock.ev.on('messages.upsert', async (messageUpdate) => {
-            const message = messageUpdate.messages[0];
+        // DÉCONNECTÉ
+        if (connection === 'close') {
+            connected = false
 
-            if (message.key.fromMe) return;
-            if (!message.message) return;
+            const statusCode = lastDisconnect?.error?.output?.statusCode
 
-            try {
-                let text = '';
-                if (message.message.conversation) {
-                    text = message.message.conversation;
-                } else if (message.message.extendedTextMessage?.text) {
-                    text = message.message.extendedTextMessage.text;
-                } else if (message.message.imageMessage?.caption) {
-                    text = message.message.imageMessage.caption;
-                } else if (message.message.videoMessage?.caption) {
-                    text = message.message.videoMessage.caption;
-                }
-
-                const sender = message.key.participant || message.key.remoteJid;
-                const isGroup = message.key.remoteJid.endsWith('@g.us');
-                const chatId = message.key.remoteJid;
-
-                const logMessage = {
-                    from: isGroup ? `Groupe: ${chatId.split('@')[0]}` : `Individuel: ${chatId.split('@')[0]}`,
-                    text: text || '[Média sans texte]',
-                    time: new Date().toLocaleTimeString('fr-FR'),
-                    sender: sender?.split('@')[0] || 'Inconnu',
-                    type: isGroup ? 'group' : 'private'
-                };
-
-                console.log(`📨 Message de ${logMessage.from}: ${text || 'Média'}`);
-                io.emit('newMessage', logMessage);
-
-                // TRAITEMENT DES COMMANDES
-                if (text && text.startsWith(config.bot.prefix)) {
-                    await handleCommand(sock, message, text, isGroup, chatId);
-                }
-
-            } catch (error) {
-                console.error('❌ Erreur traitement message:', error);
-            }
-        });
-
-        // ============================================
-        // 12. GESTION DES MISES À JOUR DE GROUPE
-        // ============================================
-        sock.ev.on('group-participants.update', async (update) => {
-            const { id, participants, action } = update;
-            console.log(`👥 Groupe ${id}: ${action} pour ${participants.length} participant(s)`);
-            io.emit('groupUpdate', {
-                groupId: id,
-                action: action,
-                participants: participants,
-                time: new Date().toLocaleTimeString('fr-FR')
-            });
-        });
-
-        // ============================================
-        // 13. FONCTION DE GESTION DES COMMANDES
-        // ============================================
-        async function handleCommand(sock, message, text, isGroup, chatId) {
-            const args = text.slice(config.bot.prefix.length).split(' ');
-            const commandName = args[0].toLowerCase();
-            const commandArgs = args.slice(1);
-
-            console.log(`🎯 Commande reçue: ${config.bot.prefix}${commandName}`);
-
-            const commandConfig = config.getCommand(commandName);
-
-            if (!commandConfig) {
-                await sock.sendMessage(chatId, {
-                    text: config.formatMessage('notFound', { cmd: commandName })
-                });
-                return;
+            if (statusCode === DisconnectReason.loggedOut) {
+                console.log('🚪 Session supprimée. Supprime auth_info puis relance.')
+                return
             }
 
-            try {
-                await executeCommand(commandName, commandArgs, message, chatId, isGroup);
-                io.emit('commandExecuted', {
-                    command: commandName,
-                    args: commandArgs,
-                    from: chatId,
-                    status: 'success',
-                    time: new Date().toLocaleTimeString('fr-FR')
-                });
-            } catch (error) {
-                console.error(`❌ Erreur commande ${commandName}:`, error);
-                await sock.sendMessage(chatId, {
-                    text: config.formatMessage('error', { error: error.message })
-                });
-                io.emit('commandExecuted', {
-                    command: commandName,
-                    error: error.message,
-                    status: 'error',
-                    time: new Date().toLocaleTimeString('fr-FR')
-                });
-            }
+            console.log('🔄 Reconnexion dans 5 secondes...')
+            setTimeout(() => startBot(), 5000)
+        }
+    })
+
+    sock.ev.on('creds.update', saveCreds)
+
+    // ============================================
+    // GESTION MESSAGES
+    // ============================================
+
+    sock.ev.on('messages.upsert', async (m) => {
+        const msg = m.messages[0]
+        if (!msg.message) return
+        if (msg.key.fromMe) return
+
+        let text = msg.message.conversation || 
+                   msg.message.extendedTextMessage?.text || ''
+
+        const chatId = msg.key.remoteJid
+
+        if (!text.startsWith(config.bot.prefix)) return
+
+        const command = text.slice(config.bot.prefix.length).toLowerCase()
+
+        if (command === 'ping') {
+            await sock.sendMessage(chatId, { text: '🏓 Pong!' })
         }
 
-        // ============================================
-        // 14. EXÉCUTION DES COMMANDES
-        // ============================================
-        async function executeCommand(command, args, message, chatId, isGroup) {
-            const jid = chatId;
-            const sender = message.key.participant || message.key.remoteJid;
-
-            const commands = {
-                'ping': async () => {
-                    const start = Date.now();
-                    await sock.sendMessage(jid, { text: '🏓 Pong!' });
-                    const end = Date.now();
-                    await sock.sendMessage(jid, { text: `⚡ Latence: ${end - start}ms` });
-                },
-                'alive': async () => {
-                    const uptime = process.uptime();
-                    const hours = Math.floor(uptime / 3600);
-                    const minutes = Math.floor((uptime % 3600) / 60);
-                    await sock.sendMessage(jid, { 
-                        text: config.formatMessage('alive', {
-                            uptime: `${hours}h ${minutes}m`,
-                            ram: Math.round(process.memoryUsage().heapUsed / 1024 / 1024)
-                        })
-                    });
-                },
-                'system': async () => {
-                    const uptime = process.uptime();
-                    const hours = Math.floor(uptime / 3600);
-                    const minutes = Math.floor((uptime % 3600) / 60);
-                    const seconds = Math.floor(uptime % 60);
-                    await sock.sendMessage(jid, { 
-                        text: `📊 *SYSTÈME - ${config.bot.name}*
-
-👤 *Propriétaire:* ${config.bot.owner}
-🖥️ *Platforme:* ${process.platform}
-📦 *Node.js:* ${process.version}
-⏰ *Uptime:* ${hours}h ${minutes}m ${seconds}s
-💾 *RAM:* ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)} MB
-🌐 *Session:* ${connected ? '✅ Active' : '❌ Inactive'}
-
-_${new Date().toLocaleString('fr-FR')}_`
-                    });
-                },
-                'sessions': async () => {
-                    const sessions = fs.existsSync('auth_info') ? 
-                        fs.readdirSync('auth_info').filter(f => f.endsWith('.json')).length : 0;
-                    let sessionInfo = { number: 'Inconnu', name: 'Inconnu' };
-                    if (fs.existsSync('session.json')) {
-                        try {
-                            sessionInfo = JSON.parse(fs.readFileSync('session.json', 'utf8'));
-                        } catch (e) {}
-                    }
-                    await sock.sendMessage(jid, { 
-                        text: `📱 *SESSIONS - ${config.bot.name}*
-
-━━━━━━━━━━━━━━
-👤 *Propriétaire:* ${config.bot.owner}
-📊 *Statut:* ${connected ? '✅ Connecté' : '❌ Déconnecté'}
-🔢 *Numéro:* ${sessionInfo.number}
-📁 *Fichiers:* ${sessions}
-⏰ *Connecté le:* ${sessionInfo.connectedAt ? new Date(sessionInfo.connectedAt).toLocaleString('fr-FR') : 'Jamais'}
-
-━━━━━━━━━━━━━━
-💡 *Commandes:* .ping, .alive, .system, .help`
-                    });
-                },
-                'help': async () => {
-                    let helpText = `╭━━━━━━━━━━━━━━╮
-┃ 🤖 *${config.bot.name}* ┃
-╰━━━━━━━━━━━━━━╯
-
-👤 *Propriétaire:* ${config.bot.owner}
-⚡ *Version:* ${config.bot.version}
-
-━━━━━━━━━━━━━━
-*📋 COMMANDES DISPONIBLES*
-━━━━━━━━━━━━━━\n\n`;
-                    const categories = {};
-                    Object.keys(config.commands).forEach(cmd => {
-                        const cat = config.commands[cmd].category || 'general';
-                        if (!categories[cat]) categories[cat] = [];
-                        categories[cat].push(cmd);
-                    });
-                    for (let [cat, cmds] of Object.entries(categories)) {
-                        helpText += `*${cat.toUpperCase()}*\n`;
-                        cmds.forEach(cmd => {
-                            helpText += `  ${config.bot.prefix}${cmd} - ${config.commands[cmd].description}\n`;
-                        });
-                        helpText += '\n';
-                    }
-                    helpText += `━━━━━━━━━━━━━━\n_Pour plus d'aide: ${config.bot.prefix}help [commande]_`;
-                    await sock.sendMessage(jid, { text: helpText });
-                },
-                'join': async () => {
-                    if (!isGroup) {
-                        await sock.sendMessage(jid, { text: '❌ Cette commande ne peut être utilisée que dans un groupe' });
-                        return;
-                    }
-                    if (args[0]) {
-                        try {
-                            await sock.groupAcceptInvite(args[0]);
-                            await sock.sendMessage(jid, { text: '✅ Groupe rejoint avec succès!' });
-                        } catch (e) {
-                            await sock.sendMessage(jid, { text: '❌ Impossible de rejoindre le groupe. Vérifiez le lien.' });
-                        }
-                    } else {
-                        await sock.sendMessage(jid, { text: '❌ Utilisation: .join [lien du groupe]' });
-                    }
-                },
-                'leave': async () => {
-                    if (!isGroup) {
-                        await sock.sendMessage(jid, { text: '❌ Cette commande ne peut être utilisée que dans un groupe' });
-                        return;
-                    }
-                    await sock.sendMessage(jid, { text: '👋 Au revoir ! Je quitte le groupe...' });
-                    setTimeout(async () => {
-                        await sock.groupLeave(jid);
-                    }, 2000);
-                },
-                'getdp': async () => {
-                    let target = args[0] || sender;
-                    target = target.replace(/[^0-9]/g, '') + '@s.whatsapp.net';
-                    try {
-                        const ppUrl = await sock.profilePictureUrl(target, 'image');
-                        await sock.sendMessage(jid, { 
-                            image: { url: ppUrl },
-                            caption: `📸 Photo de profil de @${target.split('@')[0]}`,
-                            mentions: [target]
-                        });
-                    } catch {
-                        await sock.sendMessage(jid, { text: '❌ Pas de photo de profil trouvée ou utilisateur inexistant' });
-                    }
-                },
-                'play': async () => {
-                    if (args.length === 0) {
-                        await sock.sendMessage(jid, { text: '❌ Utilisation: .play [titre de la musique]' });
-                        return;
-                    }
-                    const query = args.join(' ');
-                    await sock.sendMessage(jid, { 
-                        text: `🎵 Recherche de: "${query}"...\n\n⚠️ Fonctionnalité en développement. Bientôt disponible !` 
-                    });
-                },
-                'st': async () => {
-                    await sock.sendMessage(jid, { 
-                        text: `⚙️ *PARAMÈTRES - ${config.bot.name}*
-
-📱 *Nom:* ${config.bot.name}
-👤 *Propriétaire:* ${config.bot.owner}
-🔧 *Préfixe:* ${config.bot.prefix}
-🌐 *Langue:* ${config.settings.language}
-⚡ *Anti-spam:* ${config.settings.antiSpam ? '✅ Activé' : '❌ Désactivé'}
-
-_Paramètres modifiables via le dashboard web_` 
-                    });
-                },
-                'test': async () => {
-                    await sock.sendMessage(jid, { 
-                        text: `✅ Bot fonctionnel !\n\n📱 ${config.bot.name}\n👤 ${config.bot.owner}` 
-                    });
-                }
-            };
-
-            if (commands[command]) {
-                await commands[command]();
-            } else {
-                await sock.sendMessage(jid, { text: `❌ Commande "${command}" non implémentée encore.` });
-            }
+        if (command === 'alive') {
+            await sock.sendMessage(chatId, { 
+                text: `🤖 ${config.bot.name} est actif !`
+            })
         }
-
-    } catch (error) {
-        console.error('❌ Erreur fatale:', error);
-        console.log('🔄 Redémarrage dans 5 secondes...');
-        setTimeout(startBot, 5000);
-    }
+    })
 }
 
-// ============================================
-// 15. DÉMARRAGE DU SERVEUR
-// ============================================
-const PORT = process.env.PORT || 3000;
+/* ============================================
+   SERVEUR WEB
+============================================ */
+
+const PORT = process.env.PORT || 3000
+
 server.listen(PORT, () => {
-    console.log('╔════════════════════════════════════╗');
-    console.log('║    SERVEUR WEB DÉMARRÉ            ║');
-    console.log('╠════════════════════════════════════╣');
-    console.log(`║  URL: http://localhost:${PORT}`);
-    console.log(`║  Bot: ${config.bot.name}`);
-    console.log(`║  Owner: ${config.bot.owner}`);
-    console.log('╚════════════════════════════════════╝');
-});
+    console.log('🌐 Serveur lancé sur http://localhost:' + PORT)
+})
 
-// Démarrer le bot
-startBot();
+startBot()
 
-// ============================================
-// 16. GESTION DES ERREURS NON CAPTURÉES
-// ============================================
-process.on('uncaughtException', (error) => {
-    console.error('❌ Erreur non capturée:', error);
-});
+process.on('uncaughtException', console.error)
+process.on('unhandledRejection', console.error)
 
-process.on('unhandledRejection', (error) => {
-    console.error('❌ Promesse rejetée non gérée:', error);
-});
-
-module.exports = { app, server, io };
+module.exports = { app, server, io }
