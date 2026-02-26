@@ -130,37 +130,83 @@ app.get('/api/commands', (req, res) => {
 });
 
 // ============================================
-// ROUTE POUR LE CODE DE PARRAGE
+// ROUTE POUR LE CODE DE PARRAGE - VERSION AMÉLIORÉE
 // ============================================
 app.post('/api/pair', async (req, res) => {
     const { phoneNumber } = req.body;
 
     if (!phoneNumber) {
-        return res.status(400).json({ error: 'Numéro de téléphone requis' });
+        return res.status(400).json({ 
+            success: false,
+            error: 'Numéro de téléphone requis' 
+        });
     }
 
     try {
-        let number = phoneNumber.replace(/[^0-9]/g, '');
-        console.log(`📱 Demande de code pour: ${number}`);
-
-        if (!sock) {
-            return res.status(400).json({ error: 'Bot pas initialisé' });
+        // Nettoyer le numéro (garde uniquement les chiffres)
+        let number = phoneNumber.replace(/\D/g, '');
+        
+        // Ajouter le code pays RDC (+243) si nécessaire
+        if (!number.startsWith('243')) {
+            number = '243' + number.replace(/^0+/, '');
         }
 
-        const code = await sock.requestPairingCode(number);
-        const formattedCode = code.match(/.{1,4}/g).join('-');
+        console.log(`📱 Demande de code pour: ${number}`);
 
+        // Vérifier si le bot est connecté
+        if (!sock) {
+            return res.status(400).json({ 
+                success: false,
+                error: 'Bot non connecté. Veuillez d\'abord scanner le QR code.' 
+            });
+        }
+
+        // Ajouter un timeout de 30 secondes pour éviter l'attente infinie
+        const codePromise = sock.requestPairingCode(number);
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('⏱️ Délai de 30 secondes dépassé')), 30000)
+        );
+
+        // Attendre le premier résultat
+        const code = await Promise.race([codePromise, timeoutPromise]);
+
+        // Vérifier que le code est valide
+        if (!code) {
+            throw new Error('Code non généré');
+        }
+
+        // Formater le code (XXXX-XXXX)
+        const codeStr = code.toString();
+        const formattedCode = codeStr.match(/.{1,4}/g)?.join('-') || codeStr;
+
+        console.log(`✅ Code généré avec succès: ${formattedCode}`);
+
+        // Renvoyer le code avec un message de validité
         res.json({ 
             success: true, 
             code: formattedCode,
-            message: 'Code généré avec succès'
+            expiresIn: 60, // secondes
+            message: 'Code valable 60 secondes'
         });
 
     } catch (error) {
-        console.error('❌ Erreur pairage:', error);
+        console.error('❌ Erreur détaillée pairage:', error);
+
+        // Message d'erreur plus précis pour l'utilisateur
+        let errorMessage = 'Erreur lors de la génération du code';
+        
+        if (error.message.includes('timeout') || error.message.includes('dépassé')) {
+            errorMessage = '⏱️ Délai dépassé. Réessayez.';
+        } else if (error.message.includes('not connected')) {
+            errorMessage = '❌ Bot non connecté à WhatsApp';
+        } else if (error.message.includes('rate')) {
+            errorMessage = '⏳ Trop de tentatives. Attendez 1 minute.';
+        }
+
         res.status(500).json({ 
-            error: 'Erreur lors de la génération du code',
-            details: error.message 
+            success: false,
+            error: errorMessage,
+            details: error.message
         });
     }
 });
