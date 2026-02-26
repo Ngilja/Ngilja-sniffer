@@ -213,12 +213,12 @@ async function startBot() {
         const { state, saveCreds } = await useMultiFileAuthState('auth_info');
 
         // ============================================
-        // CRÉATION DE LA CONNEXION (VERSION CORRIGÉE)
+        // CRÉATION DE LA CONNEXION
         // ============================================
         sock = makeWASocket({
-            printQRInTerminal: true,        // ← IMPORTANT: true pour voir le QR
+            printQRInTerminal: true,
             auth: state,
-            logger: pino({ level: 'debug' }), // ← DEBUG pour voir les erreurs
+            logger: pino({ level: 'debug' }),
             browser: ['ELEXTERCORES FLEX', 'Chrome', '1.0.0'],
             syncFullHistory: false,
             markOnlineOnConnect: true,
@@ -232,23 +232,43 @@ async function startBot() {
         sock.ev.on('connection.update', async (update) => {
             const { connection, lastDisconnect, qr } = update;
 
-            // QR CODE - Version améliorée
+            // AFFICHAGE SYSTÉMATIQUE POUR DEBUG
+            console.log('🔄 Mise à jour connexion:', { 
+                connection: connection || 'N/A', 
+                hasQR: !!qr,
+                timestamp: new Date().toLocaleTimeString()
+            });
+
+            // QR CODE - Version améliorée avec plus de logs
             if (qr) {
                 try {
-                    console.log('📱 QR Code généré - Scannez avec WhatsApp');
+                    console.log('✅ QR CODE REÇU ! Génération en cours...');
+                    console.log('📱 Longueur du QR:', qr.length, 'caractères');
                     
                     // Générer le QR en base64 pour le frontend
                     const qrImage = await qrcode.toDataURL(qr);
-                    io.emit('qr', qrImage);
+                    console.log('✅ QR image générée, envoi au frontend...');
                     
-                    // Afficher aussi dans la console (au cas où)
+                    // Émettre vers tous les clients connectés
+                    io.emit('qr', qrImage);
+                    console.log('📱 QR Code envoyé au dashboard');
+                    
+                    // Afficher aussi dans la console
                     qrcode.toString(qr, { type: 'terminal', small: true }, (err, url) => {
-                        if (!err) console.log(url);
+                        if (err) {
+                            console.error('❌ Erreur affichage QR dans console:', err);
+                        } else {
+                            console.log('📱 QR dans la console:');
+                            console.log(url);
+                        }
                     });
                     
+                    console.log('📱 QR Code généré - Scannez avec WhatsApp');
                     reconnectAttempts = 0;
+                    
                 } catch (error) {
-                    console.error('❌ Erreur génération QR:', error);
+                    console.error('❌ Erreur détaillée génération QR:', error);
+                    console.error('Stack trace:', error.stack);
                 }
             }
 
