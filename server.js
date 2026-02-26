@@ -130,7 +130,7 @@ app.get('/api/commands', (req, res) => {
 });
 
 // ============================================
-// ROUTE POUR LE CODE DE PARRAGE (UNE SEULE FOIS)
+// ROUTE POUR LE CODE DE PARRAGE
 // ============================================
 app.post('/api/pair', async (req, res) => {
     const { phoneNumber } = req.body;
@@ -140,20 +140,14 @@ app.post('/api/pair', async (req, res) => {
     }
 
     try {
-        // Nettoyer le numéro
         let number = phoneNumber.replace(/[^0-9]/g, '');
-
         console.log(`📱 Demande de code pour: ${number}`);
 
-        // Générer le code de pairage
         if (!sock) {
             return res.status(400).json({ error: 'Bot pas initialisé' });
         }
 
-        // Demander le code
         const code = await sock.requestPairingCode(number);
-
-        // Formater le code (XXXX-XXXX)
         const formattedCode = code.match(/.{1,4}/g).join('-');
 
         res.json({ 
@@ -183,13 +177,11 @@ app.get('/admin', (req, res) => {
 // ============================================
 io.on('connection', (socket) => {
     console.log(`🌐 Nouveau client connecté au dashboard`);
-
     socket.emit('status', {
         connected: connected,
         botName: config.bot.name,
         owner: config.bot.owner
     });
-
     socket.on('disconnect', () => {
         console.log('👋 Client déconnecté du dashboard');
     });
@@ -208,17 +200,30 @@ async function startBot() {
         console.log(`║  Version: ${config.bot.version}`);
         console.log('╚════════════════════════════════════╝');
 
+        // ============================================
+        // NETTOYAGE DES ANCIENNES SESSIONS
+        // ============================================
+        const authFolder = './auth_info';
+        if (fs.existsSync(authFolder)) {
+            console.log('🧹 Nettoyage des anciennes sessions...');
+            fs.rmSync(authFolder, { recursive: true, force: true });
+        }
+
         // Charger l'état d'authentification
         const { state, saveCreds } = await useMultiFileAuthState('auth_info');
 
-        // Créer la connexion WhatsApp
+        // ============================================
+        // CRÉATION DE LA CONNEXION (VERSION CORRIGÉE)
+        // ============================================
         sock = makeWASocket({
-            printQRInTerminal: false,
+            printQRInTerminal: true,        // ← IMPORTANT: true pour voir le QR
             auth: state,
-            logger: pino({ level: 'silent' }),
-            browser: [config.bot.name, 'Chrome', config.bot.version],
+            logger: pino({ level: 'debug' }), // ← DEBUG pour voir les erreurs
+            browser: ['ELEXTERCORES FLEX', 'Chrome', '1.0.0'],
             syncFullHistory: false,
-            markOnlineOnConnect: true
+            markOnlineOnConnect: true,
+            generateHighQualityLinkPreview: false,
+            shouldSyncHistoryMessage: false
         });
 
         // ============================================
@@ -227,13 +232,20 @@ async function startBot() {
         sock.ev.on('connection.update', async (update) => {
             const { connection, lastDisconnect, qr } = update;
 
-            // QR CODE
+            // QR CODE - Version améliorée
             if (qr) {
                 try {
+                    console.log('📱 QR Code généré - Scannez avec WhatsApp');
+                    
+                    // Générer le QR en base64 pour le frontend
                     const qrImage = await qrcode.toDataURL(qr);
                     io.emit('qr', qrImage);
-                    console.log('📱 QR Code généré - Scannez avec WhatsApp');
-                    console.log('⏳ En attente de scan...');
+                    
+                    // Afficher aussi dans la console (au cas où)
+                    qrcode.toString(qr, { type: 'terminal', small: true }, (err, url) => {
+                        if (!err) console.log(url);
+                    });
+                    
                     reconnectAttempts = 0;
                 } catch (error) {
                     console.error('❌ Erreur génération QR:', error);
@@ -371,7 +383,6 @@ async function startBot() {
         sock.ev.on('group-participants.update', async (update) => {
             const { id, participants, action } = update;
             console.log(`👥 Groupe ${id}: ${action} pour ${participants.length} participant(s)`);
-
             io.emit('groupUpdate', {
                 groupId: id,
                 action: action,
@@ -401,7 +412,6 @@ async function startBot() {
 
             try {
                 await executeCommand(commandName, commandArgs, message, chatId, isGroup);
-
                 io.emit('commandExecuted', {
                     command: commandName,
                     args: commandArgs,
@@ -409,14 +419,11 @@ async function startBot() {
                     status: 'success',
                     time: new Date().toLocaleTimeString('fr-FR')
                 });
-
             } catch (error) {
                 console.error(`❌ Erreur commande ${commandName}:`, error);
-
                 await sock.sendMessage(chatId, {
                     text: config.formatMessage('error', { error: error.message })
                 });
-
                 io.emit('commandExecuted', {
                     command: commandName,
                     error: error.message,
@@ -433,25 +440,17 @@ async function startBot() {
             const jid = chatId;
             const sender = message.key.participant || message.key.remoteJid;
 
-            // Dictionnaire des commandes
             const commands = {
-                // ========================================
-                // COMMANDES DE BASE
-                // ========================================
                 'ping': async () => {
                     const start = Date.now();
                     await sock.sendMessage(jid, { text: '🏓 Pong!' });
                     const end = Date.now();
-                    await sock.sendMessage(jid, { 
-                        text: `⚡ Latence: ${end - start}ms` 
-                    });
+                    await sock.sendMessage(jid, { text: `⚡ Latence: ${end - start}ms` });
                 },
-
                 'alive': async () => {
                     const uptime = process.uptime();
                     const hours = Math.floor(uptime / 3600);
                     const minutes = Math.floor((uptime % 3600) / 60);
-
                     await sock.sendMessage(jid, { 
                         text: config.formatMessage('alive', {
                             uptime: `${hours}h ${minutes}m`,
@@ -459,13 +458,11 @@ async function startBot() {
                         })
                     });
                 },
-
                 'system': async () => {
                     const uptime = process.uptime();
                     const hours = Math.floor(uptime / 3600);
                     const minutes = Math.floor((uptime % 3600) / 60);
                     const seconds = Math.floor(uptime % 60);
-
                     await sock.sendMessage(jid, { 
                         text: `📊 *SYSTÈME - ${config.bot.name}*
 
@@ -479,18 +476,15 @@ async function startBot() {
 _${new Date().toLocaleString('fr-FR')}_`
                     });
                 },
-
                 'sessions': async () => {
                     const sessions = fs.existsSync('auth_info') ? 
                         fs.readdirSync('auth_info').filter(f => f.endsWith('.json')).length : 0;
-
                     let sessionInfo = { number: 'Inconnu', name: 'Inconnu' };
                     if (fs.existsSync('session.json')) {
                         try {
                             sessionInfo = JSON.parse(fs.readFileSync('session.json', 'utf8'));
                         } catch (e) {}
                     }
-
                     await sock.sendMessage(jid, { 
                         text: `📱 *SESSIONS - ${config.bot.name}*
 
@@ -505,7 +499,6 @@ _${new Date().toLocaleString('fr-FR')}_`
 💡 *Commandes:* .ping, .alive, .system, .help`
                     });
                 },
-
                 'help': async () => {
                     let helpText = `╭━━━━━━━━━━━━━━╮
 ┃ 🤖 *${config.bot.name}* ┃
@@ -517,15 +510,12 @@ _${new Date().toLocaleString('fr-FR')}_`
 ━━━━━━━━━━━━━━
 *📋 COMMANDES DISPONIBLES*
 ━━━━━━━━━━━━━━\n\n`;
-
-                    // Grouper par catégorie
                     const categories = {};
                     Object.keys(config.commands).forEach(cmd => {
                         const cat = config.commands[cmd].category || 'general';
                         if (!categories[cat]) categories[cat] = [];
                         categories[cat].push(cmd);
                     });
-
                     for (let [cat, cmds] of Object.entries(categories)) {
                         helpText += `*${cat.toUpperCase()}*\n`;
                         cmds.forEach(cmd => {
@@ -533,64 +523,38 @@ _${new Date().toLocaleString('fr-FR')}_`
                         });
                         helpText += '\n';
                     }
-
                     helpText += `━━━━━━━━━━━━━━\n_Pour plus d'aide: ${config.bot.prefix}help [commande]_`;
-
                     await sock.sendMessage(jid, { text: helpText });
                 },
-
-                // ========================================
-                // COMMANDES DE GROUPE
-                // ========================================
                 'join': async () => {
                     if (!isGroup) {
-                        await sock.sendMessage(jid, { 
-                            text: '❌ Cette commande ne peut être utilisée que dans un groupe' 
-                        });
+                        await sock.sendMessage(jid, { text: '❌ Cette commande ne peut être utilisée que dans un groupe' });
                         return;
                     }
-
                     if (args[0]) {
                         try {
                             await sock.groupAcceptInvite(args[0]);
-                            await sock.sendMessage(jid, { 
-                                text: '✅ Groupe rejoint avec succès!' 
-                            });
+                            await sock.sendMessage(jid, { text: '✅ Groupe rejoint avec succès!' });
                         } catch (e) {
-                            await sock.sendMessage(jid, { 
-                                text: '❌ Impossible de rejoindre le groupe. Vérifiez le lien.' 
-                            });
+                            await sock.sendMessage(jid, { text: '❌ Impossible de rejoindre le groupe. Vérifiez le lien.' });
                         }
                     } else {
-                        await sock.sendMessage(jid, { 
-                            text: '❌ Utilisation: .join [lien du groupe]' 
-                        });
+                        await sock.sendMessage(jid, { text: '❌ Utilisation: .join [lien du groupe]' });
                     }
                 },
-
                 'leave': async () => {
                     if (!isGroup) {
-                        await sock.sendMessage(jid, { 
-                            text: '❌ Cette commande ne peut être utilisée que dans un groupe' 
-                        });
+                        await sock.sendMessage(jid, { text: '❌ Cette commande ne peut être utilisée que dans un groupe' });
                         return;
                     }
-
-                    await sock.sendMessage(jid, { 
-                        text: '👋 Au revoir ! Je quitte le groupe...' 
-                    });
+                    await sock.sendMessage(jid, { text: '👋 Au revoir ! Je quitte le groupe...' });
                     setTimeout(async () => {
                         await sock.groupLeave(jid);
                     }, 2000);
                 },
-
-                // ========================================
-                // COMMANDES MÉDIA
-                // ========================================
                 'getdp': async () => {
                     let target = args[0] || sender;
                     target = target.replace(/[^0-9]/g, '') + '@s.whatsapp.net';
-
                     try {
                         const ppUrl = await sock.profilePictureUrl(target, 'image');
                         await sock.sendMessage(jid, { 
@@ -599,26 +563,19 @@ _${new Date().toLocaleString('fr-FR')}_`
                             mentions: [target]
                         });
                     } catch {
-                        await sock.sendMessage(jid, { 
-                            text: '❌ Pas de photo de profil trouvée ou utilisateur inexistant' 
-                        });
+                        await sock.sendMessage(jid, { text: '❌ Pas de photo de profil trouvée ou utilisateur inexistant' });
                     }
                 },
-
                 'play': async () => {
                     if (args.length === 0) {
-                        await sock.sendMessage(jid, { 
-                            text: '❌ Utilisation: .play [titre de la musique]' 
-                        });
+                        await sock.sendMessage(jid, { text: '❌ Utilisation: .play [titre de la musique]' });
                         return;
                     }
-
                     const query = args.join(' ');
                     await sock.sendMessage(jid, { 
                         text: `🎵 Recherche de: "${query}"...\n\n⚠️ Fonctionnalité en développement. Bientôt disponible !` 
                     });
                 },
-
                 'st': async () => {
                     await sock.sendMessage(jid, { 
                         text: `⚙️ *PARAMÈTRES - ${config.bot.name}*
@@ -632,10 +589,6 @@ _${new Date().toLocaleString('fr-FR')}_`
 _Paramètres modifiables via le dashboard web_` 
                     });
                 },
-
-                // ========================================
-                // COMMANDES DE TEST
-                // ========================================
                 'test': async () => {
                     await sock.sendMessage(jid, { 
                         text: `✅ Bot fonctionnel !\n\n📱 ${config.bot.name}\n👤 ${config.bot.owner}` 
@@ -643,13 +596,10 @@ _Paramètres modifiables via le dashboard web_`
                 }
             };
 
-            // Exécuter la commande si elle existe
             if (commands[command]) {
                 await commands[command]();
             } else {
-                await sock.sendMessage(jid, { 
-                    text: `❌ Commande "${command}" non implémentée encore.` 
-                });
+                await sock.sendMessage(jid, { text: `❌ Commande "${command}" non implémentée encore.` });
             }
         }
 
@@ -688,5 +638,4 @@ process.on('unhandledRejection', (error) => {
     console.error('❌ Promesse rejetée non gérée:', error);
 });
 
-// Export pour les tests
 module.exports = { app, server, io };
