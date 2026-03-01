@@ -1,10 +1,22 @@
 # config.py
 import os
+import sys
 
-# Le token sera fourni par Render (variable d'environnement)
-TOKEN = os.environ.get('8348247595:AAFSlXFKb3ZKGm7u0zysH-inOCaftyuHtfQ', '')
+# Récupération du token avec message d'erreur clair
+TOKEN = os.environ.get('8348247595:AAFSlXFKb3ZKGm7u0zysH-inOCaftyuHtfQ')
+
+if not TOKEN:
+    print("❌ ERREUR CRITIQUE: TELEGRAM_TOKEN n'est pas défini!")
+    print("📝 Variables d'environnement disponibles:", list(os.environ.keys()))
+    sys.exit(1)  # Arrête le bot si pas de token
+
+print(f"✅ Token chargé: {TOKEN[:5]}...{TOKEN[-5:]}")  # Affiche seulement début et fin
 
 TEMP_DIR = "temp"
+
+# Créer le dossier temp s'il n'existe pas
+if not os.path.exists(TEMP_DIR):
+    os.makedirs(TEMP_DIR)
 
 FORMATS_SUPPORTES = {
     '.fdx': 'FDX Injector',
@@ -36,3 +48,5 @@ CONVERSIONS = {
     '.nxp': ['.fdx', '.agn', '.sks', '.nm'],
     '.agn': ['.fdx', '.nxp', '.sks', '.ssh'],
 }
+
+print("✅ Configuration chargée avec succès!")
