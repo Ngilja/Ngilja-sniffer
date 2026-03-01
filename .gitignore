@@ -1,0 +1,25 @@
+# Fichiers temporaires
+temp/
+*.tmp
+*.log
+*.pyc
+__pycache__/
+
+# Fichiers de configuration locaux
+config_local.py
+*.json
+!ÑĞĮĻJÃ_ÑĪJ*.json
+
+# Environnement
+.env
+venv/
+env/
+ENV/
+
+# Base de données
+*.db
+*.sqlite
+
+# Fichiers système
+.DS_Store
+Thumbs.db
