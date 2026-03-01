@@ -1,7 +1,8 @@
 # config.py
 import os
 
-TOKEN = os.environ.get('8677787290:AAFfS-tWtx2fjdapQ2zyzgjIUKJ6CZnkWJQ', '')  # Le token viendra de Render
+# Le token sera fourni par Render (variable d'environnement)
+TOKEN = os.environ.get('8677787290:AAFfS-tWtx2fjdapQ2zyzgjIUKJ6CZnkWJQ', '')
 
 TEMP_DIR = "temp"
 
