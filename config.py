@@ -1,22 +1,24 @@
-# config.py
+# config.py - VERSION ULTRA SIMPLE
 import os
 import sys
 
-# Récupération du token avec message d'erreur clair
-TOKEN = os.environ.get('8348247595:AAFSlXFKb3ZKGm7u0zysH-inOCaftyuHtfQ')
-
-if not TOKEN:
-    print("❌ ERREUR CRITIQUE: TELEGRAM_TOKEN n'est pas défini!")
-    print("📝 Variables d'environnement disponibles:", list(os.environ.keys()))
-    sys.exit(1)  # Arrête le bot si pas de token
-
-print(f"✅ Token chargé: {TOKEN[:5]}...{TOKEN[-5:]}")  # Affiche seulement début et fin
+# Récupération directe du token
+try:
+    TOKEN = os.environ['8348247595:AAFSlXFKb3ZKGm7u0zysH-inOCaftyuHtfQ']
+    print(f"✅ Token trouvé! Longueur: {len(TOKEN)}")
+    print(f"📝 Début du token: {TOKEN[:10]}...")
+except KeyError:
+    print("❌ ERREUR: TELEGRAM_TOKEN n'existe pas dans os.environ")
+    print("📋 Recherche de variables contenant 'TOKEN':")
+    for key in os.environ.keys():
+        if 'TOKEN' in key:
+            print(f"   - {key}")
+    sys.exit(1)
 
 TEMP_DIR = "temp"
 
-# Créer le dossier temp s'il n'existe pas
-if not os.path.exists(TEMP_DIR):
-    os.makedirs(TEMP_DIR)
+# Créer le dossier temp
+os.makedirs(TEMP_DIR, exist_ok=True)
 
 FORMATS_SUPPORTES = {
     '.fdx': 'FDX Injector',
