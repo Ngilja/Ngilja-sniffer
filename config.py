@@ -2,7 +2,7 @@
 import os
 
 # Le token sera fourni par Render (variable d'environnement)
-TOKEN = os.environ.get('8677787290:AAFfS-tWtx2fjdapQ2zyzgjIUKJ6CZnkWJQ', '')
+TOKEN = os.environ.get('8348247595:AAFSlXFKb3ZKGm7u0zysH-inOCaftyuHtfQ', '')
 
 TEMP_DIR = "temp"
 
