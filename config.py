@@ -1,5 +1,7 @@
 # config.py
-import osTOKEN = "8677787290:AAEwqIOEZw2Lrie2lT5qGQ0UtY-tFnOy5Zw"  # 🔴 ON CHANGERA ÇA PLUS TARD
+import os
+
+TOKEN = os.environ.get('8677787290:AAFfS-tWtx2fjdapQ2zyzgjIUKJ6CZnkWJQ', '')  # Le token viendra de Render
 
 TEMP_DIR = "temp"
 
