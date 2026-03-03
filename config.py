@@ -1,10 +1,10 @@
-# config.py - VERSION ULTRA SIMPLE
+# config.py - VERSION ULTRA SIMPLE CORRIGÉE
 import os
 import sys
 
-# Récupération directe du token
+# Récupération directe du token - CORRECTION
 try:
-    TOKEN = os.environ['8348247595:AAFSlXFKb3ZKGm7u0zysH-inOCaftyuHtfQ']
+    TOKEN = os.environ['8348247595:AAFSlXFKb3ZKGm7u0zysH-inOCaftyuHtfQ']  # ← J'ai ajouté TELEGRAM_TOKEN
     print(f"✅ Token trouvé! Longueur: {len(TOKEN)}")
     print(f"📝 Début du token: {TOKEN[:10]}...")
 except KeyError:
